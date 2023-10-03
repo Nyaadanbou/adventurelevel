@@ -5,8 +5,6 @@ plugins {
 version = "1.1.0"
 
 dependencies {
-    compileOnly(project(":mewcore"))
-
     // server api
     compileOnly(libs.server.paper)
 

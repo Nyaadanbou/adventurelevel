@@ -6,25 +6,14 @@ dependencies {
     // api module
     implementation(project(":adventurelevel:api"))
 
-    // my own libs
-    compileOnly(project(":mewcore"))
-
     // server api
     compileOnly(libs.server.paper)
 
     // libs that present as other plugins
-
-    // the basic utils
     compileOnly(libs.helper) { isTransitive = false }
-
-    // to register context
-    compileOnly(libs.luckperms)
-
-    // to add placeholders
-    compileOnly(libs.papi) { isTransitive = false }
-    compileOnly(libs.minipapi) { isTransitive = false }
-
-    // to implement RPGHandler and RPGPlayer
-    compileOnly(libs.mmoitems)
-    compileOnly(libs.mythiclib)
+    compileOnly(libs.luckperms) // for LuckPerms context support
+    compileOnly(libs.papi) { isTransitive = false } // for placeholders support
+    compileOnly(libs.minipapi) { isTransitive = false } // for placeholder support
+    compileOnly(libs.mmoitems) // for hooking to player main level
+    compileOnly(libs.mythiclib) // same as above
 }
