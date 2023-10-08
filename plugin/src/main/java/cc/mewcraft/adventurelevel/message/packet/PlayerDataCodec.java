@@ -1,10 +1,11 @@
 package cc.mewcraft.adventurelevel.message.packet;
 
+import me.lucko.helper.messaging.codec.Codec;
+import me.lucko.helper.messaging.codec.EncodingException;
+
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import me.lucko.helper.messaging.codec.Codec;
-import me.lucko.helper.messaging.codec.EncodingException;
 
 import java.util.UUID;
 
@@ -44,19 +45,19 @@ public final class PlayerDataCodec implements Codec<PlayerDataPacket> {
         ByteArrayDataInput in = ByteStreams.newDataInput(buf);
 
         return new PlayerDataPacket(
-            new UUID(in.readLong(), in.readLong()),
-            in.readUTF(),
-            in.readLong(),
-            in.readInt(),
-            in.readInt(),
-            in.readInt(),
-            in.readInt(),
-            in.readInt(),
-            in.readInt(),
-            in.readInt(),
-            in.readInt(),
-            in.readInt(),
-            in.readInt()
+                new UUID(in.readLong(), in.readLong()),
+                in.readUTF(),
+                in.readLong(),
+                in.readInt(),
+                in.readInt(),
+                in.readInt(),
+                in.readInt(),
+                in.readInt(),
+                in.readInt(),
+                in.readInt(),
+                in.readInt(),
+                in.readInt(),
+                in.readInt()
         );
     }
 

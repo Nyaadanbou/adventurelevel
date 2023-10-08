@@ -1,24 +1,22 @@
 package cc.mewcraft.adventurelevel.data;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.file.DataStorage;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.message.PlayerDataMessenger;
 import cc.mewcraft.adventurelevel.message.packet.PlayerDataPacket;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.util.PlayerUtils;
+import me.lucko.helper.Schedulers;
+import me.lucko.helper.promise.Promise;
+import me.lucko.helper.scheduler.HelperExecutors;
+import me.lucko.helper.utils.Players;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalListeners;
 import com.google.common.cache.RemovalNotification;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import me.lucko.helper.Schedulers;
-import me.lucko.helper.promise.Promise;
-import me.lucko.helper.scheduler.HelperExecutors;
-import me.lucko.helper.utils.Players;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -27,51 +25,56 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.jetbrains.annotations.NotNull;
+
 @Singleton
 public class PlayerDataManagerImpl implements PlayerDataManager {
     private final AdventureLevelPlugin plugin;
     private final DataStorage storage;
     private final PlayerDataMessenger messenger;
     private final LoadingCache<UUID, PlayerData> loadingCache = CacheBuilder.newBuilder()
-        .expireAfterAccess(Duration.of(5, ChronoUnit.MINUTES))
-        .removalListener(RemovalListeners.asynchronous(new PlayerDataRemovalListener(), HelperExecutors.asyncHelper()))
-        .build(new PlayerDataLoader());
+            .expireAfterAccess(Duration.of(5, ChronoUnit.MINUTES))
+            .removalListener(RemovalListeners.asynchronous(new PlayerDataRemovalListener(), HelperExecutors.asyncHelper()))
+            .build(new PlayerDataLoader());
 
     // --- Config settings ---
     private final long networkLatencyMilliseconds;
 
     private class PlayerDataLoader extends CacheLoader<UUID, PlayerData> {
         @Override public @NotNull PlayerData load(
-            final @NotNull UUID key
+                final @NotNull UUID key
         ) {
             RealPlayerData data = new RealPlayerData(plugin, key);
 
             Schedulers.builder()
-                .async()
-                .after(networkLatencyMilliseconds, TimeUnit.MILLISECONDS)
-                .run(() -> {
+                    .async()
+                    .after(networkLatencyMilliseconds, TimeUnit.MILLISECONDS)
+                    .run(() -> {
 
-                    if (data.complete()) {
-                        return; // It is already complete - do nothing
-                    }
+                        if (data.complete()) {
+                            return; // It is already complete - do nothing
+                        }
 
-                    // Get data from message store first
-                    PlayerDataPacket message = messenger.get(key);
-                    if (message != null) {
-                        plugin.getSLF4JLogger().info("Fully loaded userdata from message store: name={}, mainXp={}", PlayerUtils.getNameFromUUID(key), message.mainXp());
-                        PlayerDataUpdater.update(data, message).markAsComplete();
-                        return;
-                    }
+                        // Get data from message store first
+                        PlayerDataPacket message = messenger.get(key);
+                        if (message != null) {
+                            plugin.getSLF4JLogger().info("Fully loaded userdata from message store: name={}, mainXp={}", PlayerUtils.getNameFromUUID(key), message.mainXp());
+                            PlayerDataUpdater.update(data, message).markAsComplete();
+                            return;
+                        }
 
-                    // The message store does not have the data,
-                    // so load the data from file and return it.
-                    PlayerData fromFile = storage.load(key);
-                    if (fromFile.equals(PlayerData.DUMMY)) {
-                        fromFile = storage.create(key); // Not existing in disk - create one
-                    }
-                    PlayerDataUpdater.update(data, fromFile).markAsComplete();
+                        // The message store does not have the data,
+                        // so load the data from file and return it.
+                        PlayerData fromFile = storage.load(key);
+                        if (fromFile.equals(PlayerData.DUMMY)) {
+                            fromFile = storage.create(key); // Not existing in disk - create one
+                        }
+                        PlayerDataUpdater.update(data, fromFile).markAsComplete();
 
-                });
+                    });
 
             return data;
         }
@@ -94,9 +97,9 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
 
     @Inject
     public PlayerDataManagerImpl(
-        final AdventureLevelPlugin plugin,
-        final DataStorage storage,
-        final PlayerDataMessenger messenger
+            final AdventureLevelPlugin plugin,
+            final DataStorage storage,
+            final PlayerDataMessenger messenger
     ) {
         this.plugin = plugin;
         this.storage = storage;
@@ -116,11 +119,11 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
 
     @Override public @NotNull Promise<PlayerData> save(final @NotNull PlayerData playerData) {
         return !playerData.complete()
-            ? Promise.supplyingExceptionallyAsync(() -> playerData)
-            : Promise.supplyingAsync(() -> {
-                storage.save(playerData);
-                return playerData;
-            });
+                ? Promise.supplyingExceptionallyAsync(() -> playerData)
+                : Promise.supplyingAsync(() -> {
+                    storage.save(playerData);
+                    return playerData;
+                });
     }
 
     @Override public @NotNull UUID unload(final @NotNull UUID uuid) {

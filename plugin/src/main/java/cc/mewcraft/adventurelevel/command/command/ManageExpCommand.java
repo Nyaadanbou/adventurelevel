@@ -1,12 +1,12 @@
 package cc.mewcraft.adventurelevel.command.command;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.command.AbstractCommand;
 import cc.mewcraft.adventurelevel.command.CommandManager;
 import cc.mewcraft.adventurelevel.command.argument.PlayerDataArgument;
 import cc.mewcraft.adventurelevel.data.PlayerData;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.util.PlayerUtils;
 import cloud.commandframework.Command;
 import cloud.commandframework.arguments.flags.CommandFlag;
@@ -27,70 +27,70 @@ public class ManageExpCommand extends AbstractCommand {
     @SuppressWarnings("DuplicatedCode")
     @Override public void register() {
         Command<CommandSender> setExpCommand = manager.commandBuilder("adventurelevel")
-            .literal("set")
-            .argument(PlayerDataArgument.of("userdata"))
-            .argument(EnumArgument.of(LevelOption.class, "category"))
-            .argument(IntegerArgument.of("amount"))
-            .flag(CommandFlag.builder("level"))
-            .permission("adventurelevel.command.admin")
-            .handler(context -> {
-                CommandSender sender = context.getSender();
+                .literal("set")
+                .argument(PlayerDataArgument.of("userdata"))
+                .argument(EnumArgument.of(LevelOption.class, "category"))
+                .argument(IntegerArgument.of("amount"))
+                .flag(CommandFlag.builder("level"))
+                .permission("adventurelevel.command.admin")
+                .handler(context -> {
+                    CommandSender sender = context.getSender();
 
-                PlayerData userdata = context.get("userdata");
-                LevelOption category = context.get("category");
-                int amount = context.get("amount");
+                    PlayerData userdata = context.get("userdata");
+                    LevelOption category = context.get("category");
+                    int amount = context.get("amount");
 
-                boolean useLevel = context.flags().isPresent("level");
-                TagResolver[] resolvers = {
-                    Placeholder.unparsed("player", PlayerUtils.getNameFromUUID(userdata.getUuid())),
-                    Placeholder.unparsed("category", category.name()),
-                    Placeholder.unparsed("amount", String.valueOf(amount))
-                };
+                    boolean useLevel = context.flags().isPresent("level");
+                    TagResolver[] resolvers = {
+                            Placeholder.unparsed("player", PlayerUtils.getNameFromUUID(userdata.getUuid())),
+                            Placeholder.unparsed("category", category.name()),
+                            Placeholder.unparsed("amount", String.valueOf(amount))
+                    };
 
-                if (useLevel) {
-                    category.mapping.apply(userdata).setLevel(amount);
-                    plugin.getLang().of("msg_player_level_is_set").resolver(resolvers).send(sender);
-                } else {
-                    category.mapping.apply(userdata).setExperience(amount);
-                    plugin.getLang().of("msg_player_xp_is_set").resolver(resolvers).send(sender);
-                }
-            })
-            .build();
+                    if (useLevel) {
+                        category.mapping.apply(userdata).setLevel(amount);
+                        plugin.getLang().of("msg_player_level_is_set").resolver(resolvers).send(sender);
+                    } else {
+                        category.mapping.apply(userdata).setExperience(amount);
+                        plugin.getLang().of("msg_player_xp_is_set").resolver(resolvers).send(sender);
+                    }
+                })
+                .build();
 
         Command<CommandSender> addExpCommand = manager.commandBuilder("adventurelevel")
-            .literal("add")
-            .argument(PlayerDataArgument.of("userdata"))
-            .argument(EnumArgument.of(LevelOption.class, "category"))
-            .argument(IntegerArgument.of("amount"))
-            .flag(CommandFlag.builder("level"))
-            .permission("adventurelevel.command.admin")
-            .handler(context -> {
-                CommandSender sender = context.getSender();
+                .literal("add")
+                .argument(PlayerDataArgument.of("userdata"))
+                .argument(EnumArgument.of(LevelOption.class, "category"))
+                .argument(IntegerArgument.of("amount"))
+                .flag(CommandFlag.builder("level"))
+                .permission("adventurelevel.command.admin")
+                .handler(context -> {
+                    CommandSender sender = context.getSender();
 
-                PlayerData userdata = context.get("userdata");
-                LevelOption category = context.get("category");
-                int amount = context.get("amount");
+                    PlayerData userdata = context.get("userdata");
+                    LevelOption category = context.get("category");
+                    int amount = context.get("amount");
 
-                boolean useLevel = context.flags().isPresent("level");
-                TagResolver[] resolvers = {
-                    Placeholder.unparsed("player", PlayerUtils.getNameFromUUID(userdata.getUuid())),
-                    Placeholder.unparsed("category", category.name()),
-                    Placeholder.unparsed("amount", String.valueOf(amount))
-                };
+                    boolean useLevel = context.flags().isPresent("level");
+                    TagResolver[] resolvers = {
+                            Placeholder.unparsed("player", PlayerUtils.getNameFromUUID(userdata.getUuid())),
+                            Placeholder.unparsed("category", category.name()),
+                            Placeholder.unparsed("amount", String.valueOf(amount))
+                    };
 
-                if (useLevel) {
-                    category.mapping.apply(userdata).addLevel(amount);
-                    plugin.getLang().of("msg_player_level_is_added").resolver(resolvers).send(sender);
-                } else {
-                    category.mapping.apply(userdata).addExperience(amount);
-                    plugin.getLang().of("msg_player_xp_is_added").resolver(resolvers).send(sender);
-                }
-            })
-            .build();
+                    if (useLevel) {
+                        category.mapping.apply(userdata).addLevel(amount);
+                        plugin.getLang().of("msg_player_level_is_added").resolver(resolvers).send(sender);
+                    } else {
+                        category.mapping.apply(userdata).addExperience(amount);
+                        plugin.getLang().of("msg_player_xp_is_added").resolver(resolvers).send(sender);
+                    }
+                })
+                .build();
 
         manager.register(List.of(
-            setExpCommand,
-            addExpCommand
+                setExpCommand,
+                addExpCommand
         ));
     }
 

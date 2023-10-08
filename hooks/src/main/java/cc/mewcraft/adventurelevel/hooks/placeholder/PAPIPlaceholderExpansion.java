@@ -4,16 +4,18 @@ import cc.mewcraft.adventurelevel.data.PlayerData;
 import cc.mewcraft.adventurelevel.data.PlayerDataManager;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.lucko.helper.terminable.Terminable;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Singleton
 public class PAPIPlaceholderExpansion implements Terminable {
@@ -48,9 +50,9 @@ public class PAPIPlaceholderExpansion implements Terminable {
                     int currentExp = main.getExperience();
                     double currentLevel = main.calculateTotalLevel(currentExp);
                     yield BigDecimal.valueOf(currentLevel % 1)
-                        .scaleByPowerOfTen(2)
-                        .setScale(0, RoundingMode.FLOOR)
-                        .toPlainString();
+                            .scaleByPowerOfTen(2)
+                            .setScale(0, RoundingMode.FLOOR)
+                            .toPlainString();
                 }
                 case "experience" -> String.valueOf(main.getExperience());
                 case "experience_progress" -> {

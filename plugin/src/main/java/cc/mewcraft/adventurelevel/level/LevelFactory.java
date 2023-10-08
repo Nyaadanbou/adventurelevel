@@ -1,14 +1,15 @@
 package cc.mewcraft.adventurelevel.level;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Objects;
+
+import org.jetbrains.annotations.NotNull;
 
 public final class LevelFactory {
     public static @NotNull Level newLevel(@NotNull LevelCategory category) {
@@ -33,9 +34,9 @@ public final class LevelFactory {
             case EXP_BOTTLE:
             case GRINDSTONE: {
                 File file = plugin.getDataFolder().toPath()
-                    .resolve("categories")
-                    .resolve(category.name().toLowerCase() + ".yml")
-                    .toFile();
+                        .resolve("categories")
+                        .resolve(category.name().toLowerCase() + ".yml")
+                        .toFile();
                 config = YamlConfiguration.loadConfiguration(file);
                 yield LevelBuilder.builder(plugin, config).build(category);
             }

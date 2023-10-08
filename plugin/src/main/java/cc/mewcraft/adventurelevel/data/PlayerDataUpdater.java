@@ -1,12 +1,13 @@
 package cc.mewcraft.adventurelevel.data;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.level.LevelFactory;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.message.packet.PlayerDataPacket;
-import org.jetbrains.annotations.NotNull;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 
 import java.util.UUID;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Given a reference of PlayerData and a data source, this class provides convenient methods to update the states of
@@ -25,14 +26,13 @@ public final class PlayerDataUpdater {
      *
      * @param data   a PlayerData whose states are to be updated. This will be the return value
      * @param source a data sent on the network which the states are copied from
-     *
      * @return an updated PlayerData (the reference remains unchanged)
      */
     public static @NotNull PlayerData update(final @NotNull PlayerData data, final @NotNull PlayerDataPacket source) {
         for (final LevelCategory category : LevelCategory.values()) {
             data.asMap()
-                .computeIfAbsent(category, LevelFactory::newLevel)
-                .setExperience(source.getExpByCategory(category));
+                    .computeIfAbsent(category, LevelFactory::newLevel)
+                    .setExperience(source.getExpByCategory(category));
         }
 
         return data; // reference remains unchanged
@@ -43,14 +43,13 @@ public final class PlayerDataUpdater {
      *
      * @param data   a PlayerData whose states are to be updated. This will be the return value
      * @param source a data loaded from disk which the states are copied from
-     *
      * @return an updated PlayerData (the reference remains unchanged)
      */
     public static @NotNull PlayerData update(final @NotNull PlayerData data, final @NotNull PlayerData source) {
         for (final LevelCategory category : LevelCategory.values()) {
             data.asMap()
-                .computeIfAbsent(category, LevelFactory::newLevel)
-                .setExperience(source.getLevel(category).getExperience());
+                    .computeIfAbsent(category, LevelFactory::newLevel)
+                    .setExperience(source.getLevel(category).getExperience());
         }
 
         return data; // reference remains unchanged

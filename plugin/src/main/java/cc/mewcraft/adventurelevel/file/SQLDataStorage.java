@@ -1,17 +1,14 @@
 package cc.mewcraft.adventurelevel.file;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.data.PlayerData;
 import cc.mewcraft.adventurelevel.data.RealPlayerData;
 import cc.mewcraft.adventurelevel.level.LevelFactory;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.util.PlayerUtils;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,6 +16,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.jetbrains.annotations.NotNull;
 
 import static java.util.Objects.requireNonNull;
 
@@ -71,30 +73,29 @@ public class SQLDataStorage extends AbstractDataStorage {
         this.userdataTable = requireNonNull(plugin.getConfig().getString("database.table_names.userdata"));
 
         this.insertUserdataQuery = """
-            INSERT INTO %userdata_table%
-            (`uuid`, `name`, `main_exp`, `player_death_exp`, `entity_death_exp`, `furnace_exp`, `breed_exp`, `villager_trade_exp`, `fishing_exp`, `block_break_exp`, `exp_bottle_exp`, `grindstone_exp`)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
-            `uuid` = VALUES(`uuid`),
-            `name` = VALUES(`name`),
-            `main_exp` = VALUES(`main_exp`),
-            `player_death_exp` = VALUES(`player_death_exp`),
-            `entity_death_exp` = VALUES(`entity_death_exp`),
-            `furnace_exp` = VALUES(`furnace_exp`),
-            `breed_exp` = VALUES(`breed_exp`),
-            `villager_trade_exp` = VALUES(`villager_trade_exp`),
-            `fishing_exp` = VALUES(`fishing_exp`),
-            `block_break_exp` = VALUES(`block_break_exp`),
-            `exp_bottle_exp` = VALUES(`exp_bottle_exp`),
-            `grindstone_exp` = VALUES(`grindstone_exp`);"""
-            .replace("%userdata_table%", userdataTable);
+                INSERT INTO %userdata_table%
+                (`uuid`, `name`, `main_exp`, `player_death_exp`, `entity_death_exp`, `furnace_exp`, `breed_exp`, `villager_trade_exp`, `fishing_exp`, `block_break_exp`, `exp_bottle_exp`, `grindstone_exp`)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
+                `uuid` = VALUES(`uuid`),
+                `name` = VALUES(`name`),
+                `main_exp` = VALUES(`main_exp`),
+                `player_death_exp` = VALUES(`player_death_exp`),
+                `entity_death_exp` = VALUES(`entity_death_exp`),
+                `furnace_exp` = VALUES(`furnace_exp`),
+                `breed_exp` = VALUES(`breed_exp`),
+                `villager_trade_exp` = VALUES(`villager_trade_exp`),
+                `fishing_exp` = VALUES(`fishing_exp`),
+                `block_break_exp` = VALUES(`block_break_exp`),
+                `exp_bottle_exp` = VALUES(`exp_bottle_exp`),
+                `grindstone_exp` = VALUES(`grindstone_exp`);"""
+                .replace("%userdata_table%", userdataTable);
         this.selectUserdataQuery = """
-            SELECT * FROM %userdata_table% WHERE uuid = ?;"""
-            .replace("%userdata_table%", userdataTable);
+                SELECT * FROM %userdata_table% WHERE uuid = ?;"""
+                .replace("%userdata_table%", userdataTable);
     }
 
     private void setupTables(Connection conn) throws SQLException {
-        try (
-            PreparedStatement stmt1 = conn.prepareStatement("""
+        try (PreparedStatement stmt1 = conn.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS
                 %userdata_table% (
                 `uuid` varchar(36) NOT NULL PRIMARY KEY,
@@ -110,8 +111,7 @@ public class SQLDataStorage extends AbstractDataStorage {
                 `exp_bottle_exp` int(11) DEFAULT 0,
                 `grindstone_exp` int(11) DEFAULT 0);"""
                 .replace("%userdata_table%", userdataTable)
-            )
-        ) {
+        )) {
             stmt1.execute();
         }
     }
@@ -150,9 +150,8 @@ public class SQLDataStorage extends AbstractDataStorage {
     }
 
     @Override public @NotNull PlayerData create(final UUID uuid) {
-        try (
-            Connection conn = connectionPool.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(insertUserdataQuery)
+        try (Connection conn = connectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(insertUserdataQuery)
         ) {
             // Construct a map of empty levels
             ConcurrentHashMap<LevelCategory, Level> levels = new ConcurrentHashMap<>() {{
@@ -197,9 +196,8 @@ public class SQLDataStorage extends AbstractDataStorage {
     }
 
     @Override public @NotNull PlayerData load(final UUID uuid) {
-        try (
-            Connection conn = connectionPool.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(selectUserdataQuery)
+        try (Connection conn = connectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(selectUserdataQuery)
         ) {
             // Note: string comparisons are case-insensitive by default in the configuration of SQL server database
             stmt.setString(1, uuid.toString());
@@ -255,9 +253,8 @@ public class SQLDataStorage extends AbstractDataStorage {
             return;
         }*/
 
-        try (
-            Connection conn = connectionPool.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(insertUserdataQuery)
+        try (Connection conn = connectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(insertUserdataQuery)
         ) {
             stmt.setString(1, playerData.getUuid().toString());
             stmt.setString(2, PlayerUtils.getNameFromUUID(playerData.getUuid()).toLowerCase());

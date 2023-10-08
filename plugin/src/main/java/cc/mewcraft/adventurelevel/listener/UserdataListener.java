@@ -1,17 +1,18 @@
 package cc.mewcraft.adventurelevel.listener;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.data.PlayerData;
-import cc.mewcraft.mewcore.listener.AutoCloseableListener;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 @Singleton
-public class UserdataListener implements AutoCloseableListener {
+public class UserdataListener implements Listener {
 
     private final AdventureLevelPlugin plugin;
 

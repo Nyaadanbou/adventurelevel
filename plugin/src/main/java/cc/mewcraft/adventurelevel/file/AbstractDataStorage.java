@@ -1,6 +1,6 @@
 package cc.mewcraft.adventurelevel.file;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 
 public abstract class AbstractDataStorage implements DataStorage {
     protected final AdventureLevelPlugin plugin;

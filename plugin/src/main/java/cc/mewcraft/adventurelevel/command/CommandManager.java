@@ -1,8 +1,8 @@
 package cc.mewcraft.adventurelevel.command;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.command.command.ManageExpCommand;
 import cc.mewcraft.adventurelevel.command.command.ReloadPluginCommand;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import cloud.commandframework.Command;
 import cloud.commandframework.brigadier.CloudBrigadierManager;
 import cloud.commandframework.bukkit.CloudBukkitCapabilities;
@@ -11,20 +11,21 @@ import cloud.commandframework.minecraft.extras.AudienceProvider;
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler;
 import cloud.commandframework.paper.PaperCommandManager;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.jetbrains.annotations.Nullable;
+
 public class CommandManager extends PaperCommandManager<CommandSender> {
 
     public CommandManager(AdventureLevelPlugin plugin) throws Exception {
         super(
-            plugin,
-            CommandExecutionCoordinator.simpleCoordinator(), // use sync, so what we see in code is what it actually does
-            Function.identity(),
-            Function.identity()
+                plugin,
+                CommandExecutionCoordinator.simpleCoordinator(), // use sync, so what we see in code is what it actually does
+                Function.identity(),
+                Function.identity()
         );
 
         // ---- Register Brigadier ----
@@ -45,13 +46,13 @@ public class CommandManager extends PaperCommandManager<CommandSender> {
 
         // ---- Change default exception messages ----
         new MinecraftExceptionHandler<CommandSender>()
-            .withDefaultHandlers()
-            .apply(this, sender -> AudienceProvider.nativeAudience().apply(sender));
+                .withDefaultHandlers()
+                .apply(this, sender -> AudienceProvider.nativeAudience().apply(sender));
 
         // ---- Register all commands ----
         Stream.of(
-            new ReloadPluginCommand(plugin, this),
-            new ManageExpCommand(plugin, this)
+                new ReloadPluginCommand(plugin, this),
+                new ManageExpCommand(plugin, this)
         ).forEach(AbstractCommand::register);
     }
 

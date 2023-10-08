@@ -1,12 +1,13 @@
 package cc.mewcraft.adventurelevel.hooks.mmoitems;
 
-import cc.mewcraft.adventurelevel.AdventureLevelProvider;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelProvider;
 import net.Indyuce.mmoitems.api.player.PlayerData;
 import net.Indyuce.mmoitems.api.player.RPGPlayer;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+
+import org.jetbrains.annotations.NotNull;
 
 public class AdventureLevelPlayer extends RPGPlayer {
     private final UUID uuid;

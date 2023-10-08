@@ -2,9 +2,10 @@ package cc.mewcraft.adventurelevel.level.category;
 
 import cc.mewcraft.adventurelevel.level.modifier.ExperienceModifier;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The number of levels is just a final result, which is derived from the backed experience value.
@@ -18,14 +19,12 @@ public interface Level {
 
     /**
      * @param level a specific level
-     *
      * @return how much experience value has been collected to reach the given level
      */
     int calculateTotalExperience(int level);
 
     /**
      * @param currentLevel the current level
-     *
      * @return how many experience value needed to get to the next level from the given current level
      */
     int calculateNeededExperience(int currentLevel);
@@ -34,7 +33,6 @@ public interface Level {
      * Side Note: It's an inverse of {@link #calculateTotalExperience(int)}.
      *
      * @param totalExp the total experience value
-     *
      * @return the number of levels derived from the given total experience value. The returned number of levels is a
      * double and the decimal part is essentially the progress to the next level, with <b>0</b> indicating zero progress
      * and <b>1</b> indicating full progress
@@ -48,14 +46,12 @@ public interface Level {
 
     /**
      * @param value the new experience value
-     *
      * @return the old experience value
      */
     int setExperience(int value);
 
     /**
      * @param value the added experience value
-     *
      * @return the old experience value
      */
     int addExperience(int value);
@@ -88,14 +84,12 @@ public interface Level {
 
     /**
      * @param level the new number of levels
-     *
      * @return the old number of levels
      */
     int setLevel(int level);
 
     /**
      * @param level the number of levels to be added
-     *
      * @return the old number of levels
      */
     int addLevel(int level);
@@ -109,7 +103,6 @@ public interface Level {
      * Sets the experience value of this level and returns itself.
      *
      * @param value the new experience value
-     *
      * @return this instance
      */
     @SuppressWarnings("unchecked")
@@ -122,7 +115,6 @@ public interface Level {
      * Sets the number of levels of this level and returns itself.
      *
      * @param level the new number of levels
-     *
      * @return this instance
      */
     @SuppressWarnings("unchecked")

@@ -1,7 +1,7 @@
 package cc.mewcraft.adventurelevel.command.argument;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.data.PlayerData;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import cloud.commandframework.ArgumentDescription;
 import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.arguments.parser.ArgumentParseResult;
@@ -14,21 +14,22 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.BiFunction;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 @NonnullByDefault
 public class PlayerDataArgument extends CommandArgument<CommandSender, PlayerData> {
 
     public PlayerDataArgument(boolean required,
-        String name,
-        String defaultValue,
-        @Nullable BiFunction<CommandContext<CommandSender>, String, List<String>> suggestionsProvider,
-        ArgumentDescription defaultDescription) {
+            String name,
+            String defaultValue,
+            @Nullable BiFunction<CommandContext<CommandSender>, String, List<String>> suggestionsProvider,
+            ArgumentDescription defaultDescription) {
         super(required, name, new Parser(), defaultValue, PlayerData.class, suggestionsProvider, defaultDescription);
     }
 
@@ -47,8 +48,8 @@ public class PlayerDataArgument extends CommandArgument<CommandSender, PlayerDat
     public static final class Parser implements ArgumentParser<CommandSender, PlayerData> {
         @Override
         public ArgumentParseResult<PlayerData> parse(
-            final CommandContext<CommandSender> commandContext,
-            final Queue<String> inputQueue
+                final CommandContext<CommandSender> commandContext,
+                final Queue<String> inputQueue
         ) {
             String input = inputQueue.peek();
             if (input == null) {
@@ -59,7 +60,7 @@ public class PlayerDataArgument extends CommandArgument<CommandSender, PlayerDat
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayerIfCached(input);
             if (offlinePlayer == null) {
                 return ArgumentParseResult.failure(
-                    new IllegalArgumentException(AdventureLevelPlugin.getInstance().getLang().of("msg_player_is_null").locale(sender).plain())
+                        new IllegalArgumentException(AdventureLevelPlugin.getInstance().getLang().of("msg_player_is_null").locale(sender).plain())
                 );
             }
 
@@ -70,14 +71,14 @@ public class PlayerDataArgument extends CommandArgument<CommandSender, PlayerDat
             }
 
             return ArgumentParseResult.failure(
-                new IllegalArgumentException(AdventureLevelPlugin.getInstance().getLang().of("msg_player_is_null").plain())
+                    new IllegalArgumentException(AdventureLevelPlugin.getInstance().getLang().of("msg_player_is_null").plain())
             );
         }
 
         @Override
         public List<String> suggestions(
-            final CommandContext<CommandSender> commandContext,
-            final String input
+                final CommandContext<CommandSender> commandContext,
+                final String input
         ) {
             List<String> suggestions = new ArrayList<>();
 
@@ -101,11 +102,11 @@ public class PlayerDataArgument extends CommandArgument<CommandSender, PlayerDat
         @Override
         public PlayerDataArgument build() {
             return new PlayerDataArgument(
-                this.isRequired(),
-                this.getName(),
-                this.getDefaultValue(),
-                this.getSuggestionsProvider(),
-                this.getDefaultDescription()
+                    this.isRequired(),
+                    this.getName(),
+                    this.getDefaultValue(),
+                    this.getSuggestionsProvider(),
+                    this.getDefaultDescription()
             );
         }
     }

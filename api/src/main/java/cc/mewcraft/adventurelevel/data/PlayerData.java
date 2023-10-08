@@ -2,10 +2,11 @@ package cc.mewcraft.adventurelevel.data;
 
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.UUID;
+
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("UnusedReturnValue")
 public interface PlayerData {

@@ -3,16 +3,18 @@ package cc.mewcraft.adventurelevel.hooks.luckperms;
 import cc.mewcraft.adventurelevel.data.PlayerData;
 import cc.mewcraft.adventurelevel.data.PlayerDataManager;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
-import com.google.inject.Inject;
 import net.luckperms.api.LuckPermsProvider;
 import org.bukkit.OfflinePlayer;
-import org.checkerframework.checker.nullness.qual.NonNull;
+
+import javax.inject.Inject;
+
+import org.jetbrains.annotations.NotNull;
 
 public class LevelContextCalculator {
     private final PlayerDataManager playerDataManager;
 
     @Inject
-    public LevelContextCalculator(final @NonNull PlayerDataManager playerDataManager) {
+    public LevelContextCalculator(final @NotNull PlayerDataManager playerDataManager) {
         this.playerDataManager = playerDataManager;
     }
 
@@ -25,9 +27,9 @@ public class LevelContextCalculator {
         LuckPermsProvider.get().getContextManager().registerCalculator((target, consumer) -> {
             PlayerData data = playerDataManager.load((OfflinePlayer) target);
             consumer.accept("adventure-level",
-                data.complete()
-                    ? String.valueOf(data.getLevel(LevelCategory.MAIN).getLevel())
-                    : "0"
+                    data.complete()
+                            ? String.valueOf(data.getLevel(LevelCategory.MAIN).getLevel())
+                            : "0"
             );
         });
     }

@@ -3,10 +3,11 @@ package cc.mewcraft.adventurelevel.data;
 import me.lucko.helper.promise.Promise;
 import me.lucko.helper.terminable.Terminable;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.UUID;
+
+import org.jetbrains.annotations.NotNull;
 
 public interface PlayerDataManager extends Terminable {
     @NotNull PlayerData load(@NotNull UUID uuid);

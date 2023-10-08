@@ -1,18 +1,20 @@
 package cc.mewcraft.adventurelevel.level;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.level.category.*;
-import cc.mewcraft.mewcore.util.RangeUtils;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
+import cc.mewcraft.spatula.utils.Ranges;
 import com.ezylang.evalex.Expression;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.TreeRangeMap;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ExperienceOrb;
-import org.jetbrains.annotations.NotNull;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.TreeRangeMap;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("UnstableApiUsage")
 class LevelBuilder {
@@ -48,22 +50,26 @@ class LevelBuilder {
         maximumLevel = config.getInt("maximum_level", 0);
 
         // Read level expressions
-        ConfigurationSection sec1 = Objects.requireNonNull(config.getConfigurationSection("level_to_exp_formula")); // Get sections
+        // - Get sections
+        ConfigurationSection sec1 = Objects.requireNonNull(config.getConfigurationSection("level_to_exp_formula"));
         ConfigurationSection sec2 = Objects.requireNonNull(config.getConfigurationSection("exp_to_level_formula"));
         ConfigurationSection sec3 = Objects.requireNonNull(config.getConfigurationSection("next_level_exp"));
-        Preconditions.checkArgument(sec1.getKeys(false).size() == sec2.getKeys(false).size()); // Validate # of ranges
+        // - Validate # of ranges
+        Preconditions.checkArgument(sec1.getKeys(false).size() == sec2.getKeys(false).size());
         Preconditions.checkArgument(sec2.getKeys(false).size() == sec3.getKeys(false).size());
-        exp1 = TreeRangeMap.create(); // Initialize RangeMap's
+        // - Initialize RangeMap's
+        exp1 = TreeRangeMap.create();
         exp2 = TreeRangeMap.create();
         exp3 = TreeRangeMap.create();
-        fillRangeMap(exp1, sec1); // Fill up RangeMap's
+        // - Fill up RangeMaps
+        fillRangeMap(exp1, sec1);
         fillRangeMap(exp2, sec2);
         fillRangeMap(exp3, sec3);
     }
 
     private void fillRangeMap(TreeRangeMap<Integer, Expression> map, ConfigurationSection section) {
         for (String k : section.getKeys(false)) {
-            map.put(RangeUtils.of(k), new Expression(section.getString(k)));
+            map.put(Ranges.parse(k), new Expression(section.getString(k)));
         }
     }
 

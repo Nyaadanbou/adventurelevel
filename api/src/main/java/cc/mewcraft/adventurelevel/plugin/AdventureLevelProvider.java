@@ -1,4 +1,4 @@
-package cc.mewcraft.adventurelevel;
+package cc.mewcraft.adventurelevel.plugin;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,6 @@ public final class AdventureLevelProvider {
      * instance, however, this provider can be used if this is not viable.</p>
      *
      * @return an instance of the AdventureLevel API
-     *
      * @throws IllegalStateException if the API is not loaded yet
      */
     public static @NotNull AdventureLevel get() {

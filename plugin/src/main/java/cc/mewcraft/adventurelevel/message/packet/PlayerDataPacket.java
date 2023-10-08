@@ -7,19 +7,19 @@ import java.util.UUID;
 
 @Message(codec = PlayerDataCodec.class) // use specific Codec instead of GsonCodec to encode/decode this class
 public record PlayerDataPacket(
-    UUID uuid,
-    String server,
-    long timestamp,
-    int mainXp,
-    int blockBreakXp,
-    int breedXp,
-    int entityDeathXp,
-    int expBottleXp,
-    int fishingXp,
-    int furnaceXp,
-    int grindstoneXp,
-    int playerDeathXp,
-    int villagerTradeXp
+        UUID uuid,
+        String server,
+        long timestamp,
+        int mainXp,
+        int blockBreakXp,
+        int breedXp,
+        int entityDeathXp,
+        int expBottleXp,
+        int fishingXp,
+        int furnaceXp,
+        int grindstoneXp,
+        int playerDeathXp,
+        int villagerTradeXp
 ) {
 
     public int getExpByCategory(LevelCategory category) {

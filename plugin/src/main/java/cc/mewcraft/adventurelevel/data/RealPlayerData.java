@@ -1,15 +1,16 @@
 package cc.mewcraft.adventurelevel.data;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
-import org.jetbrains.annotations.NotNull;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.jetbrains.annotations.NotNull;
 
 public class RealPlayerData implements PlayerData {
     /**
@@ -40,8 +41,8 @@ public class RealPlayerData implements PlayerData {
      * @param uuid   the uuid of backed player
      */
     public RealPlayerData(
-        final AdventureLevelPlugin plugin,
-        final UUID uuid
+            final AdventureLevelPlugin plugin,
+            final UUID uuid
     ) {
         markAsIncomplete();
 
@@ -53,14 +54,14 @@ public class RealPlayerData implements PlayerData {
     /**
      * You must pass in a complete set of data to this constructor.
      *
-     * @param plugin       the plugin instance
-     * @param uuid         the uuid of backed player
+     * @param plugin   the plugin instance
+     * @param uuid     the uuid of backed player
      * @param levelMap the map must already be filled with instances of all levels
      */
     public RealPlayerData(
-        final AdventureLevelPlugin plugin,
-        final UUID uuid,
-        final ConcurrentHashMap<LevelCategory, Level> levelMap
+            final AdventureLevelPlugin plugin,
+            final UUID uuid,
+            final ConcurrentHashMap<LevelCategory, Level> levelMap
     ) {
         markAsComplete();
 

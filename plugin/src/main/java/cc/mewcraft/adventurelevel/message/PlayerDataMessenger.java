@@ -1,28 +1,32 @@
 package cc.mewcraft.adventurelevel.message;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.data.PlayerData;
 import cc.mewcraft.adventurelevel.data.PlayerDataManager;
 import cc.mewcraft.adventurelevel.data.PlayerDataUpdater;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.message.packet.PlayerDataPacket;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.util.PlayerUtils;
-import cc.mewcraft.mewcore.network.ServerInfo;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import cc.mewcraft.spatula.network.ServerInfo;
+
 import me.lucko.helper.messaging.Channel;
 import me.lucko.helper.messaging.ChannelAgent;
 import me.lucko.helper.messaging.Messenger;
 import me.lucko.helper.terminable.Terminable;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class provides methods to sync data between servers.
@@ -53,8 +57,8 @@ public class PlayerDataMessenger implements Terminable {
 
     @Inject
     public PlayerDataMessenger(
-        final AdventureLevelPlugin plugin,
-        final PlayerDataManager playerDataManager
+            final AdventureLevelPlugin plugin,
+            final PlayerDataManager playerDataManager
     ) {
         this.plugin = plugin;
         this.playerDataManager = playerDataManager;
@@ -105,19 +109,19 @@ public class PlayerDataMessenger implements Terminable {
      */
     public void publish(@NotNull PlayerData data) {
         channel.sendMessage(new PlayerDataPacket(
-            data.getUuid(),
-            ServerInfo.SERVER_ID.get(),
-            System.currentTimeMillis(),
-            data.getLevel(LevelCategory.MAIN).getExperience(),
-            data.getLevel(LevelCategory.BLOCK_BREAK).getExperience(),
-            data.getLevel(LevelCategory.BREED).getExperience(),
-            data.getLevel(LevelCategory.ENTITY_DEATH).getExperience(),
-            data.getLevel(LevelCategory.EXP_BOTTLE).getExperience(),
-            data.getLevel(LevelCategory.FISHING).getExperience(),
-            data.getLevel(LevelCategory.FURNACE).getExperience(),
-            data.getLevel(LevelCategory.GRINDSTONE).getExperience(),
-            data.getLevel(LevelCategory.PLAYER_DEATH).getExperience(),
-            data.getLevel(LevelCategory.VILLAGER_TRADE).getExperience()
+                data.getUuid(),
+                ServerInfo.SERVER_ID.get(),
+                System.currentTimeMillis(),
+                data.getLevel(LevelCategory.MAIN).getExperience(),
+                data.getLevel(LevelCategory.BLOCK_BREAK).getExperience(),
+                data.getLevel(LevelCategory.BREED).getExperience(),
+                data.getLevel(LevelCategory.ENTITY_DEATH).getExperience(),
+                data.getLevel(LevelCategory.EXP_BOTTLE).getExperience(),
+                data.getLevel(LevelCategory.FISHING).getExperience(),
+                data.getLevel(LevelCategory.FURNACE).getExperience(),
+                data.getLevel(LevelCategory.GRINDSTONE).getExperience(),
+                data.getLevel(LevelCategory.PLAYER_DEATH).getExperience(),
+                data.getLevel(LevelCategory.VILLAGER_TRADE).getExperience()
         )).thenAcceptAsync(n -> plugin.getSLF4JLogger().info("Published userdata to channel: name={}, mainXp={}", PlayerUtils.getNameFromUUID(data.getUuid()), data.getLevel(LevelCategory.MAIN).getExperience()));
     }
 

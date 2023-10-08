@@ -3,17 +3,19 @@ plugins {
 }
 
 dependencies {
-    // api module
-    implementation(project(":adventurelevel:api"))
+    // internal modules
+    compileOnly(project(":adventurelevel:api"))
 
-    // server api
+    // server
     compileOnly(libs.server.paper)
 
-    // libs that present as other plugins
-    compileOnly(libs.helper) { isTransitive = false }
+    // helper
+    compileOnly(libs.helper)
+
+    // standalone plugins
     compileOnly(libs.luckperms) // for LuckPerms context support
-    compileOnly(libs.papi) { isTransitive = false } // for placeholders support
-    compileOnly(libs.minipapi) { isTransitive = false } // for placeholder support
-    compileOnly(libs.mmoitems) // for hooking to player main level
+    compileOnly(libs.papi) { isTransitive = false } // for PlaceholderAPI support
+    compileOnly(libs.minipapi) { isTransitive = false } // for MiniPlaceholders support
+    compileOnly(libs.mmoitems) // for hooking to player main level of MMOItems
     compileOnly(libs.mythiclib) // same as above
 }

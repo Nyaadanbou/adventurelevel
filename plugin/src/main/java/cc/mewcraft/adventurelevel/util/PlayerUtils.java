@@ -2,10 +2,11 @@ package cc.mewcraft.adventurelevel.util;
 
 import me.lucko.helper.utils.Players;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class PlayerUtils {
 
@@ -20,5 +21,5 @@ public final class PlayerUtils {
     private PlayerUtils() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
-    
+
 }

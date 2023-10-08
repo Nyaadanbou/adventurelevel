@@ -1,6 +1,6 @@
 package cc.mewcraft.adventurelevel.command;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 
 public abstract class AbstractCommand {
 

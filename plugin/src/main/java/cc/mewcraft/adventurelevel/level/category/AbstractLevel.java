@@ -1,17 +1,19 @@
 package cc.mewcraft.adventurelevel.level.category;
 
-import cc.mewcraft.adventurelevel.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.level.modifier.ExperienceModifier;
+import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.parser.ParseException;
+
 import com.google.common.collect.RangeMap;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class AbstractLevel implements Level {
@@ -36,11 +38,11 @@ public abstract class AbstractLevel implements Level {
     protected final RangeMap<Integer, Expression> nextLevelFormulae;
 
     public AbstractLevel(
-        final AdventureLevelPlugin plugin,
-        final int maxLevel,
-        final RangeMap<Integer, Expression> levelToExpFormula,
-        final RangeMap<Integer, Expression> expToLevelFormula,
-        final RangeMap<Integer, Expression> nextLevelFormula
+            final AdventureLevelPlugin plugin,
+            final int maxLevel,
+            final RangeMap<Integer, Expression> levelToExpFormula,
+            final RangeMap<Integer, Expression> expToLevelFormula,
+            final RangeMap<Integer, Expression> nextLevelFormula
     ) {
         this.plugin = plugin;
         this.maxLevel = maxLevel;
@@ -58,11 +60,11 @@ public abstract class AbstractLevel implements Level {
     @Override public int calculateTotalExperience(final int level) {
         try {
             return levelToExpFormulae
-                .get(level)
-                .with("x", level)
-                .evaluate()
-                .getNumberValue()
-                .intValue();
+                    .get(level)
+                    .with("x", level)
+                    .evaluate()
+                    .getNumberValue()
+                    .intValue();
         } catch (EvaluationException | ParseException e) {
             throw new RuntimeException(e);
         }
@@ -71,11 +73,11 @@ public abstract class AbstractLevel implements Level {
     @Override public int calculateNeededExperience(final int currentLevel) {
         try {
             return nextLevelFormulae
-                .get(currentLevel)
-                .with("x", currentLevel)
-                .evaluate()
-                .getNumberValue()
-                .intValue();
+                    .get(currentLevel)
+                    .with("x", currentLevel)
+                    .evaluate()
+                    .getNumberValue()
+                    .intValue();
         } catch (EvaluationException | ParseException e) {
             throw new RuntimeException(e);
         }
@@ -84,11 +86,11 @@ public abstract class AbstractLevel implements Level {
     @Override public double calculateTotalLevel(final int totalExp) {
         try {
             return expToLevelFormulae
-                .get(totalExp)
-                .with("x", totalExp)
-                .evaluate()
-                .getNumberValue()
-                .doubleValue();
+                    .get(totalExp)
+                    .with("x", totalExp)
+                    .evaluate()
+                    .getNumberValue()
+                    .doubleValue();
         } catch (EvaluationException | ParseException e) {
             throw new RuntimeException(e);
         }

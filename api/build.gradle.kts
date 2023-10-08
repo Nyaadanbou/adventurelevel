@@ -5,9 +5,9 @@ plugins {
 version = "1.1.0"
 
 dependencies {
-    // server api
+    // server
     compileOnly(libs.server.paper)
 
-    // libs that present as other plugins
-    compileOnly(libs.helper) { isTransitive = false }
+    // helper
+    compileOnly(libs.helper)
 }

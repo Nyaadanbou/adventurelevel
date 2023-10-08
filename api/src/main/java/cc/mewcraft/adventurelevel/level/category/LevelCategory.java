@@ -1,6 +1,7 @@
 package cc.mewcraft.adventurelevel.level.category;
 
 import org.bukkit.entity.ExperienceOrb;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +49,6 @@ public enum LevelCategory {
 
     /**
      * @param reason the spawn reason
-     *
      * @return returns an empty if the SpawnReason should not be counted
      */
     public static @Nullable LevelCategory toLevelCategory(@NotNull ExperienceOrb.SpawnReason reason) {

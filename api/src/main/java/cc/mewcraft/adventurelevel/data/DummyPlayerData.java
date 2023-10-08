@@ -4,11 +4,12 @@ import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.level.modifier.ExperienceModifier;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.jetbrains.annotations.NotNull;
 
 public class DummyPlayerData implements PlayerData {
     private static final DummyLevel DUMMY_LEVEL = new DummyLevel();
