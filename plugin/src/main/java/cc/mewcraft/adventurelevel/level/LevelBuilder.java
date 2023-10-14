@@ -2,7 +2,7 @@ package cc.mewcraft.adventurelevel.level;
 
 import cc.mewcraft.adventurelevel.level.category.*;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
-import cc.mewcraft.spatula.utils.Ranges;
+import cc.mewcraft.spatula.utils.RangeUtils;
 import com.ezylang.evalex.Expression;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ExperienceOrb;
@@ -69,7 +69,7 @@ class LevelBuilder {
 
     private void fillRangeMap(TreeRangeMap<Integer, Expression> map, ConfigurationSection section) {
         for (String k : section.getKeys(false)) {
-            map.put(Ranges.parse(k), new Expression(section.getString(k)));
+            map.put(RangeUtils.parse(k), new Expression(section.getString(k)));
         }
     }
 
