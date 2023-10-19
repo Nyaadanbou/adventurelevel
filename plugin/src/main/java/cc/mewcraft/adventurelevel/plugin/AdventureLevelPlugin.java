@@ -62,8 +62,8 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
         playerDataMessenger.registerListeners();
 
         // Register listeners
-        registerListener(injector.getInstance(PickupExpListener.class));
-        registerListener(injector.getInstance(UserdataListener.class));
+        registerTerminableListener(injector.getInstance(PickupExpListener.class)).bindWith(this);
+        registerTerminableListener(injector.getInstance(UserdataListener.class)).bindWith(this);
 
         // Register placeholders
         if (isPluginPresent("MiniPlaceholders"))
