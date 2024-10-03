@@ -1,60 +1,57 @@
 import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 plugins {
-    id("cc.mewcraft.deploy-conventions")
-    alias(libs.plugins.pluginyml.paper)
+    id("nyaadanbou-conventions.repositories")
+    id("nyaadanbou-conventions.copy-jar")
+    alias(local.plugins.pluginyml.paper)
 }
 
-project.ext.set("name", "AdventureLevel")
+version = "1.1.1"
+description = "Add adventure level to players"
 
 dependencies {
-    // internal modules
-    implementation(project(":adventurelevel:api"))
-    implementation(project(":adventurelevel:hooks"))
-
     // internal
-    implementation(libs.guice)
-    implementation(libs.hikari)
-    implementation(libs.evalex)
-    implementation(project(":spatula:bukkit:command"))
-    implementation(project(":spatula:bukkit:message"))
-    implementation(project(":spatula:bukkit:utils"))
-    implementation(project(":spatula:network"))
+    implementation(project(":api"))
+    implementation(project(":hooks"))
+    implementation(local.guice)
+    implementation(local.hikaricp)
+    implementation(local.evalex)
 
-    // server
-    compileOnly(libs.server.paper)
+    // 3rd party
+    compileOnly(local.paper)
+    compileOnly(local.helper)
+    compileOnly(local.helper.redis)
+}
 
-    // helper
-    compileOnly(libs.helper)
-    compileOnly(libs.helper.redis)
+tasks {
+    copyJar {
+        environment = "paper"
+        jarFileName = "adventurelevel-${project.version}.jar"
+    }
 }
 
 paper {
     main = "cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin"
-    name = project.ext.get("name") as String
+    name = "AdventureLevel"
     version = "${project.version}"
     description = project.description
-    apiVersion = "1.19"
+    apiVersion = "1.21"
     authors = listOf("Nailm")
     serverDependencies {
         register("helper") {
             required = true
-            joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("LuckPerms") {
             required = false
-            joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.OMIT
         }
         register("PlaceholderAPI") {
             required = false
-            joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.OMIT
         }
         register("MiniPlaceholders") {
             required = false
-            joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.OMIT
         }
     }

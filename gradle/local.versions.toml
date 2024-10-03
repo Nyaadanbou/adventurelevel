@@ -1,0 +1,46 @@
+[versions]
+
+kotlin = "2.0.20"
+kotlinx = "1.9.0-RC.2"
+paper = "1.21.1-R0.1-SNAPSHOT"
+mccoroutine = "2.19.0"
+messenger = "1.0.0-SNAPSHOT"
+hikaricp = "5.1.0"
+jdbc-mariadb = "3.4.1"
+shadow = "8.3.0"
+helper = "6.0.0-SNAPSHOT"
+helper-redis = "1.2.1"
+
+[libraries]
+
+# Gradle plugins
+
+plugin-kotlin-jvm = { group = "org.jetbrains.kotlin.jvm", name = "org.jetbrains.kotlin.jvm.gradle.plugin", version.ref = "kotlin" }
+plugin-kotlin-serialization = { group = "org.jetbrains.kotlin.plugin.serialization", name = "org.jetbrains.kotlin.plugin.serialization.gradle.plugin", version.ref = "kotlin" }
+plugin-kotlin-atomicfu = { group = "org.jetbrains.kotlin.plugin.atomicfu", name = "org.jetbrains.kotlin.plugin.atomicfu.gradle.plugin", version.ref = "kotlin" }
+plugin-nyaadanbou-conventions = { group = "cc.mewcraft.gradle", name = "conventions", version = "1.0-SNAPSHOT" }
+plugin-shadow = { group = "com.gradleup.shadow", name = "shadow-gradle-plugin", version.ref = "shadow" }
+
+# Code dependencies
+
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx" }
+mccoroutine-bukkit-core = { group = "com.github.shynixn.mccoroutine", name = "mccoroutine-bukkit-core", version.ref = "mccoroutine" }
+mccoroutine-bukkit-api = { group = "com.github.shynixn.mccoroutine", name = "mccoroutine-bukkit-api", version.ref = "mccoroutine" }
+messenger-common = { group = "cc.mewcraft.messenger", name = "common", version.ref = "messenger" }
+messenger-paper = { group = "cc.mewcraft.messenger", name = "paper", version.ref = "messenger" }
+messenger-velocity = { group = "cc.mewcraft.messenger", name = "velocity", version.ref = "messenger" }
+guice = { group = "com.google.inject", name = "guice", version = "5.1.0" }
+guice-assistedinject = { group = "com.google.inject.extensions", name = "guice-assistedinject", version = "5.1.0" }
+evalex = { group = "com.ezylang", name = "EvalEx", version = "3.2.0" }
+hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp" }
+jdbc-mariadb = { group = "org.mariadb.jdbc", name = "mariadb-java-client", version.ref = "jdbc-mariadb" }
+paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
+helper = { group = "me.lucko", name = "helper", version.ref = "helper" }
+helper-redis = { group = "me.lucko", name = "helper-redis", version.ref = "helper-redis" }
+luckperms = { group = "net.luckperms", name = "api", version = "5.4" }
+papi = { group = "me.clip", name = "placeholderapi", version = "2.11.6" }
+minipapi = { group = "io.github.miniplaceholders", name = "miniplaceholders-api", version = "2.2.3" }
+
+[plugins]
+
+pluginyml-paper = { id = "net.minecrell.plugin-yml.paper", version = "0.6.0" }
