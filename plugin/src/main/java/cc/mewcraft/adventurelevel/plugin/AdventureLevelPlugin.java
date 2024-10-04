@@ -11,8 +11,8 @@ import cc.mewcraft.adventurelevel.hooks.placeholder.PAPIPlaceholderExpansion;
 import cc.mewcraft.adventurelevel.listener.PickupExpListener;
 import cc.mewcraft.adventurelevel.listener.UserdataListener;
 import cc.mewcraft.adventurelevel.message.PlayerDataMessenger;
-import cc.mewcraft.spatula.message.Translations;
 
+import cc.mewcraft.adventurelevel.util.Translations;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
 
 import com.google.inject.AbstractModule;

@@ -1,7 +1,6 @@
 plugins {
     id("nyaadanbou-conventions.repositories")
     id("adventurelevel-conventions")
-
 }
 
 dependencies {
@@ -12,6 +11,6 @@ dependencies {
 
     // hooks
     compileOnly(local.luckperms)
-    compileOnly(local.papi) { isTransitive = false }
-    compileOnly(local.minipapi) { isTransitive = false }
+    compileOnly(local.placeholderapi) { isTransitive = false }
+    compileOnly(local.miniplaceholders) { isTransitive = false }
 }

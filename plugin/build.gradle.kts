@@ -16,6 +16,9 @@ dependencies {
     implementation(local.guice)
     implementation(local.hikaricp)
     implementation(local.evalex)
+    implementation(local.lang)
+    implementation(local.nettowaku)
+    implementation(platform(libs.bom.cloud.paper))
 
     // 3rd party
     compileOnly(local.paper)
