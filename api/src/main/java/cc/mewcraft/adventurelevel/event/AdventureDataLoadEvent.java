@@ -8,12 +8,12 @@ import org.bukkit.event.player.PlayerEvent;
 
 import org.jetbrains.annotations.NotNull;
 
-public class AdventurePlayerDataLoadEvent extends PlayerEvent {
+public class AdventureDataLoadEvent extends PlayerEvent {
 
     private static final HandlerList HANDLERS = new HandlerList();
     private final PlayerData playerData;
 
-    public AdventurePlayerDataLoadEvent(final @NotNull Player who, PlayerData playerData) {
+    public AdventureDataLoadEvent(final @NotNull Player who, PlayerData playerData) {
         super(who, !Bukkit.isPrimaryThread());
         this.playerData = playerData;
     }

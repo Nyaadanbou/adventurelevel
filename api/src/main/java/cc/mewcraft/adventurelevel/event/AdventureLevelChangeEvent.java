@@ -7,12 +7,12 @@ import org.bukkit.event.player.PlayerEvent;
 
 import org.jetbrains.annotations.NotNull;
 
-public class AdventurePlayerLevelChangeEvent extends PlayerEvent implements Cancellable {
+public class AdventureLevelChangeEvent extends PlayerEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean cancelled;
 
-    public AdventurePlayerLevelChangeEvent(final @NotNull Player who) {
+    public AdventureLevelChangeEvent(final @NotNull Player who) {
         super(who);
     }
 
