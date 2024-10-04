@@ -4,7 +4,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 public final class AdventureLevelProvider {
-
     private static AdventureLevel instance = null;
 
     /**
@@ -34,9 +33,7 @@ public final class AdventureLevelProvider {
         AdventureLevelProvider.instance = null;
     }
 
-    @ApiStatus.Internal
     private AdventureLevelProvider() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
-
 }
