@@ -136,7 +136,9 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
         // We need to save all ONLINE players data before shutdown.
         // Doing so we can safely and completely reload the plugin.
         for (final PlayerData value : loadingCache.asMap().values()) {
-            if (Players.get(value.getUuid()).isPresent()) storage.save(value);
+            if (Players.get(value.getUuid()).isPresent()) {
+                storage.save(value);
+            }
         }
     }
 }
