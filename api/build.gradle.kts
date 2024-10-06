@@ -7,6 +7,7 @@ plugins {
 version = "1.1.0"
 
 dependencies {
+    compileOnly(local.guice)
     compileOnly(local.paper)
     compileOnly(local.helper)
 }

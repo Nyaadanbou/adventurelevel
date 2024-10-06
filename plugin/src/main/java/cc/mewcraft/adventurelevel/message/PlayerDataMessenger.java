@@ -7,26 +7,22 @@ import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.message.packet.PlayerDataPacket;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.util.PlayerUtils;
-
 import cc.mewcraft.nettowaku.ServerInfo;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import me.lucko.helper.messaging.Channel;
 import me.lucko.helper.messaging.ChannelAgent;
 import me.lucko.helper.messaging.Messenger;
 import me.lucko.helper.terminable.Terminable;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * This class provides methods to sync data between servers.

@@ -5,11 +5,10 @@ import cc.mewcraft.adventurelevel.data.PlayerDataManager;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import static org.bukkit.event.EventPriority.HIGH;
 

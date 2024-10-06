@@ -34,7 +34,7 @@ public final class LevelFactory {
             case EXP_BOTTLE:
             case GRINDSTONE: {
                 File file = plugin.getDataFolder().toPath()
-                        .resolve("categories")
+                        .resolve("calc")
                         .resolve(category.name().toLowerCase() + ".yml")
                         .toFile();
                 config = YamlConfiguration.loadConfiguration(file);

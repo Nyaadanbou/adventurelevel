@@ -53,7 +53,7 @@ class LevelBuilder {
         // - Get sections
         ConfigurationSection sec1 = Objects.requireNonNull(config.getConfigurationSection("level_to_exp_formula"));
         ConfigurationSection sec2 = Objects.requireNonNull(config.getConfigurationSection("exp_to_level_formula"));
-        ConfigurationSection sec3 = Objects.requireNonNull(config.getConfigurationSection("next_level_exp"));
+        ConfigurationSection sec3 = Objects.requireNonNull(config.getConfigurationSection("exp_until_next_level"));
         // - Validate # of ranges
         Preconditions.checkArgument(sec1.getKeys(false).size() == sec2.getKeys(false).size());
         Preconditions.checkArgument(sec2.getKeys(false).size() == sec3.getKeys(false).size());

@@ -6,6 +6,7 @@ plugins {
 dependencies {
     // internal
     compileOnly(project(":api"))
+    compileOnly(local.guice)
     compileOnly(local.paper)
     compileOnly(local.helper)
 

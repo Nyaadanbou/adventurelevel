@@ -3,6 +3,7 @@ import net.minecrell.pluginyml.paper.PaperPluginDescription
 plugins {
     id("nyaadanbou-conventions.repositories")
     id("nyaadanbou-conventions.copy-jar")
+    id("adventurelevel-conventions")
     alias(local.plugins.pluginyml.paper)
 }
 
@@ -13,8 +14,12 @@ dependencies {
     // internal
     implementation(project(":api"))
     implementation(project(":hooks"))
-    implementation(local.guice)
-    implementation(local.hikaricp)
+    implementation(local.guice) {
+        exclude("com.google.guava", "guava")
+    }
+    implementation(local.hikaricp) {
+        exclude("org.slf4j", "slf4j-api")
+    }
     implementation(local.evalex)
     implementation(local.lang)
     implementation(local.nettowaku)
@@ -42,6 +47,10 @@ paper {
     authors = listOf("Nailm")
     serverDependencies {
         register("helper") {
+            required = true
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
+        register("helper-redis") {
             required = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }

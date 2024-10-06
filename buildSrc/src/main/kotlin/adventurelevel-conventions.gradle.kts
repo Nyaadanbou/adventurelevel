@@ -32,7 +32,6 @@ java {
 
 kotlin {
     jvmToolchain(21)
-
     sourceSets {
         val main by getting {
             dependencies {
@@ -41,7 +40,6 @@ kotlin {
                 compileOnly(local.kotlinx.coroutines.core)
             }
         }
-
         val test by getting {
             dependencies {
                 implementation(kotlin("test"))

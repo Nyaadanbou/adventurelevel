@@ -11,14 +11,11 @@ import cc.mewcraft.adventurelevel.hooks.placeholder.PAPIPlaceholderExpansion;
 import cc.mewcraft.adventurelevel.listener.PickupExpListener;
 import cc.mewcraft.adventurelevel.listener.UserdataListener;
 import cc.mewcraft.adventurelevel.message.PlayerDataMessenger;
-
 import cc.mewcraft.adventurelevel.util.Translations;
-import me.lucko.helper.plugin.ExtendedJavaPlugin;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
+import me.lucko.helper.plugin.ExtendedJavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 public class AdventureLevelPlugin extends ExtendedJavaPlugin implements AdventureLevel {
@@ -50,9 +47,9 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
         });
 
         saveDefaultConfig();
-        saveResourceRecursively("categories");
+        saveResourceRecursively("calc");
 
-        translations = new Translations(this, "languages");
+        translations = new Translations(this, "lang");
 
         dataStorage = bind(injector.getInstance(DataStorage.class));
         dataStorage.init();

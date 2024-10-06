@@ -3,11 +3,9 @@ package cc.mewcraft.adventurelevel.hooks.luckperms;
 import cc.mewcraft.adventurelevel.data.PlayerData;
 import cc.mewcraft.adventurelevel.data.PlayerDataManager;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
+import jakarta.inject.Inject;
 import net.luckperms.api.LuckPermsProvider;
 import org.bukkit.OfflinePlayer;
-
-import javax.inject.Inject;
-
 import org.jetbrains.annotations.NotNull;
 
 public class LevelContextCalculator {

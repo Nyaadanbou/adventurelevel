@@ -1,7 +1,7 @@
 [versions]
 
 kotlin = "2.0.20"
-kotlinx = "1.9.0-RC.2"
+kotlinx-coroutines = "1.9.0-RC.2"
 shadow = "8.3.0"
 nyaadanbou-conventions = "1.0-SNAPSHOT"
 
@@ -14,7 +14,7 @@ hikaricp = "5.1.0"
 jdbc-mariadb = "3.4.1"
 helper = "6.0.0-SNAPSHOT"
 helper-redis = "1.2.1"
-guice = "5.1.0"
+guice = "7.0.0"
 evalex = "3.2.0"
 luckperms = "5.4"
 placeholderapi = "2.11.6"
@@ -34,7 +34,7 @@ plugin-shadow = { group = "com.gradleup.shadow", name = "shadow-gradle-plugin", 
 
 # Code dependencies
 
-kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 mccoroutine-bukkit-core = { group = "com.github.shynixn.mccoroutine", name = "mccoroutine-bukkit-core", version.ref = "mccoroutine" }
 mccoroutine-bukkit-api = { group = "com.github.shynixn.mccoroutine", name = "mccoroutine-bukkit-api", version.ref = "mccoroutine" }
 messenger-common = { group = "cc.mewcraft.messenger", name = "common", version.ref = "messenger" }

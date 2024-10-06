@@ -19,12 +19,12 @@ public class MainLevel extends AbstractLevel {
     public MainLevel(
             final AdventureLevelPlugin plugin,
             final int maxLevel,
-            final RangeMap<Integer, Expression> levelToExpFormulae,
-            final RangeMap<Integer, Expression> expToLevelFormulae,
-            final RangeMap<Integer, Expression> nextLevelFormulae,
+            final RangeMap<Integer, Expression> convertLevelToExpFormula,
+            final RangeMap<Integer, Expression> convertExpToLevelFormula,
+            final RangeMap<Integer, Expression> expUntilNextLevelFormula,
             final Map<ExperienceOrb.SpawnReason, Double> experienceModifiers
     ) {
-        super(plugin, maxLevel, levelToExpFormulae, expToLevelFormulae, nextLevelFormulae);
+        super(plugin, maxLevel, convertLevelToExpFormula, convertExpToLevelFormula, expUntilNextLevelFormula);
         this.experienceModifiers = experienceModifiers;
     }
 

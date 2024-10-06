@@ -27,28 +27,28 @@ public abstract class AbstractLevel implements Level {
     /**
      * @see #calculateTotalExperience(int)
      */
-    protected final RangeMap<Integer, Expression> levelToExpFormulae;
+    protected final RangeMap<Integer, Expression> convertLevelToExpFormula;
     /**
      * @see #calculateTotalLevel(int)
      */
-    protected final RangeMap<Integer, Expression> expToLevelFormulae;
+    protected final RangeMap<Integer, Expression> convertExpToLevelFormula;
     /**
      * @see #calculateNeededExperience(int)
      */
-    protected final RangeMap<Integer, Expression> nextLevelFormulae;
+    protected final RangeMap<Integer, Expression> expUntilNextLevelFormula;
 
     public AbstractLevel(
             final AdventureLevelPlugin plugin,
             final int maxLevel,
-            final RangeMap<Integer, Expression> levelToExpFormula,
-            final RangeMap<Integer, Expression> expToLevelFormula,
-            final RangeMap<Integer, Expression> nextLevelFormula
+            final RangeMap<Integer, Expression> convertLevelToExpFormula,
+            final RangeMap<Integer, Expression> convertExpToLevelFormula,
+            final RangeMap<Integer, Expression> expUntilNextLevelFormula
     ) {
         this.plugin = plugin;
         this.maxLevel = maxLevel;
-        this.levelToExpFormulae = levelToExpFormula;
-        this.expToLevelFormulae = expToLevelFormula;
-        this.nextLevelFormulae = nextLevelFormula;
+        this.convertLevelToExpFormula = convertLevelToExpFormula;
+        this.convertExpToLevelFormula = convertExpToLevelFormula;
+        this.expUntilNextLevelFormula = expUntilNextLevelFormula;
         this.additiveModifiers = new HashMap<>();
         this.multiplicativeModifiers = new HashMap<>();
     }
@@ -59,7 +59,7 @@ public abstract class AbstractLevel implements Level {
 
     @Override public int calculateTotalExperience(final int level) {
         try {
-            return levelToExpFormulae
+            return convertLevelToExpFormula
                     .get(level)
                     .with("x", level)
                     .evaluate()
@@ -72,7 +72,7 @@ public abstract class AbstractLevel implements Level {
 
     @Override public int calculateNeededExperience(final int currentLevel) {
         try {
-            return nextLevelFormulae
+            return expUntilNextLevelFormula
                     .get(currentLevel)
                     .with("x", currentLevel)
                     .evaluate()
@@ -85,7 +85,7 @@ public abstract class AbstractLevel implements Level {
 
     @Override public double calculateTotalLevel(final int totalExp) {
         try {
-            return expToLevelFormulae
+            return convertExpToLevelFormula
                     .get(totalExp)
                     .with("x", totalExp)
                     .evaluate()

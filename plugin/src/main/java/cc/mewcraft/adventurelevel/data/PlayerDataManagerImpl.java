@@ -6,17 +6,19 @@ import cc.mewcraft.adventurelevel.message.PlayerDataMessenger;
 import cc.mewcraft.adventurelevel.message.packet.PlayerDataPacket;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.util.PlayerUtils;
-import me.lucko.helper.Schedulers;
-import me.lucko.helper.promise.Promise;
-import me.lucko.helper.scheduler.HelperExecutors;
-import me.lucko.helper.utils.Players;
-
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalListeners;
 import com.google.common.cache.RemovalNotification;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import me.lucko.helper.Schedulers;
+import me.lucko.helper.promise.Promise;
+import me.lucko.helper.scheduler.HelperExecutors;
+import me.lucko.helper.utils.Players;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -24,11 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.jetbrains.annotations.NotNull;
 
 @Singleton
 public class PlayerDataManagerImpl implements PlayerDataManager {

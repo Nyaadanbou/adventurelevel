@@ -5,6 +5,8 @@ import cc.mewcraft.adventurelevel.data.PlayerDataManager;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import io.github.miniplaceholders.api.Expansion;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import me.lucko.helper.terminable.Terminable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.Tag;
@@ -12,9 +14,6 @@ import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public class MiniPlaceholderExpansion implements Terminable {
