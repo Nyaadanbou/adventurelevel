@@ -31,8 +31,12 @@ public class PAPIPlaceholderExpansion implements Terminable {
         return this;
     }
 
+    @SuppressWarnings("ConstantValue")
     @Override public void close() {
-        placeholderExpansion.unregister();
+        // 服务器关闭时, 如果 PlaceholderAPI 先于本插件关闭, 则可能为空
+        if (placeholderExpansion.getPlaceholderAPI() != null) {
+            placeholderExpansion.unregister();
+        }
     }
 
     private class AdventureLevelExpansion extends PlaceholderExpansion {
