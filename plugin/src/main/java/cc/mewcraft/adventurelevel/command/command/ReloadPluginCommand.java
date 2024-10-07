@@ -25,7 +25,6 @@ public class ReloadPluginCommand extends AbstractCommand {
                     plugin.onDisable();
                     plugin.onEnable();
 
-                    //noinspection UnstableApiUsage
                     plugin.getLang().of("msg_config_reloaded").resolver(
                             Placeholder.unparsed("plugin", plugin.getName()),
                             Placeholder.unparsed("version", plugin.getPluginMeta().getVersion()),

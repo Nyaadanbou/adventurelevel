@@ -6,16 +6,13 @@ import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.parser.ParseException;
-
 import com.google.common.collect.RangeMap;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-
-@SuppressWarnings("UnstableApiUsage")
 public abstract class AbstractLevel implements Level {
 
     protected final AdventureLevelPlugin plugin;
@@ -125,7 +122,7 @@ public abstract class AbstractLevel implements Level {
             multiplicativeMod *= mod.getValue();
         }
 
-        totalExperience += value * Math.max(0, 1 + additiveMod) * Math.max(0, multiplicativeMod);
+        totalExperience += (int) (value * Math.max(0, 1 + additiveMod) * Math.max(0, multiplicativeMod));
         return oldValue;
     }
 

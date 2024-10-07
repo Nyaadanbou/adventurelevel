@@ -5,7 +5,6 @@ import com.ezylang.evalex.Expression;
 
 import com.google.common.collect.RangeMap;
 
-@SuppressWarnings("UnstableApiUsage")
 public class BreedLevel extends AbstractLevel {
     public BreedLevel(
             final AdventureLevelPlugin plugin,

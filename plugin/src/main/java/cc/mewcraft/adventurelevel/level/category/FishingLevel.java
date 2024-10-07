@@ -5,8 +5,6 @@ import com.ezylang.evalex.Expression;
 
 import com.google.common.collect.RangeMap;
 
-
-@SuppressWarnings("UnstableApiUsage")
 public class FishingLevel extends AbstractLevel {
     public FishingLevel(
             final AdventureLevelPlugin plugin,

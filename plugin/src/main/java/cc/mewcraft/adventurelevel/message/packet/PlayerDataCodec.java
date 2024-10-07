@@ -12,7 +12,6 @@ import java.util.UUID;
 public final class PlayerDataCodec implements Codec<PlayerDataPacket> {
 
     @Override public byte[] encode(final PlayerDataPacket message) throws EncodingException {
-        @SuppressWarnings("UnstableApiUsage")
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
 
         // write uuid
@@ -41,7 +40,6 @@ public final class PlayerDataCodec implements Codec<PlayerDataPacket> {
     }
 
     @Override public PlayerDataPacket decode(final byte[] buf) throws EncodingException {
-        @SuppressWarnings("UnstableApiUsage")
         ByteArrayDataInput in = ByteStreams.newDataInput(buf);
 
         return new PlayerDataPacket(

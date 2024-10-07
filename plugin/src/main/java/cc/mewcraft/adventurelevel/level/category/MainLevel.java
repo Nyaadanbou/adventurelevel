@@ -1,17 +1,16 @@
 package cc.mewcraft.adventurelevel.level.category;
 
+import cc.mewcraft.adventurelevel.event.AdventureLevelExpChangeEvent;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.ezylang.evalex.Expression;
-import org.bukkit.entity.ExperienceOrb;
-
 import com.google.common.collect.RangeMap;
+import org.bukkit.entity.ExperienceOrb;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
 
-@SuppressWarnings("UnstableApiUsage")
 public class MainLevel extends AbstractLevel {
 
     private final Map<ExperienceOrb.SpawnReason, Double> experienceModifiers;
@@ -30,12 +29,26 @@ public class MainLevel extends AbstractLevel {
 
     @Override public void handleEvent(final PlayerPickupExperienceEvent event) {
         ExperienceOrb orb = event.getExperienceOrb();
-        double amount = orb.getExperience();
-        double modifier = experienceModifiers.get(orb.getSpawnReason());
+        final double amount = orb.getExperience();
+        final double modifier = experienceModifiers.get(orb.getSpawnReason());
         int result = BigDecimal
                 .valueOf(amount * modifier) // apply global modifiers
                 .setScale(0, RoundingMode.HALF_DOWN)
                 .intValue();
+
+        if (AdventureLevelExpChangeEvent.getHandlerList().getRegisteredListeners().length != 0) {
+            int previousExp = totalExperience;
+            int changingExp = result;
+            AdventureLevelExpChangeEvent event1 = new AdventureLevelExpChangeEvent(
+                    event.getPlayer(),
+                    AdventureLevelExpChangeEvent.Action.OFFSET,
+                    previousExp,
+                    changingExp
+            );
+            if (!event1.callEvent()) return;
+            result = event1.getChangingExp();
+        }
+
         this.addExperience(result);
     }
 }

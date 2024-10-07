@@ -5,8 +5,6 @@ import com.ezylang.evalex.Expression;
 
 import com.google.common.collect.RangeMap;
 
-
-@SuppressWarnings("UnstableApiUsage")
 public class VillagerTradeLevel extends AbstractLevel {
     public VillagerTradeLevel(
             final AdventureLevelPlugin plugin,

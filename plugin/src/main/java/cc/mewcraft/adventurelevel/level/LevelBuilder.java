@@ -16,7 +16,6 @@ import java.util.Objects;
 
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("UnstableApiUsage")
 class LevelBuilder {
     private final AdventureLevelPlugin plugin;
     private final ConfigurationSection config;

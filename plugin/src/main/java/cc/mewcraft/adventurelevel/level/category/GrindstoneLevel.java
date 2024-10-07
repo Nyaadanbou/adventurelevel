@@ -5,8 +5,6 @@ import com.ezylang.evalex.Expression;
 
 import com.google.common.collect.RangeMap;
 
-
-@SuppressWarnings("UnstableApiUsage")
 public class GrindstoneLevel extends AbstractLevel {
     public GrindstoneLevel(
             final AdventureLevelPlugin plugin,

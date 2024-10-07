@@ -5,7 +5,6 @@ import com.ezylang.evalex.Expression;
 
 import com.google.common.collect.RangeMap;
 
-@SuppressWarnings("UnstableApiUsage")
 public class BlockBreakLevel extends AbstractLevel {
     public BlockBreakLevel(
             final AdventureLevelPlugin plugin,
