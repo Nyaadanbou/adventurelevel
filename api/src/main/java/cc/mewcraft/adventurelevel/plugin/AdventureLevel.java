@@ -1,11 +1,10 @@
 package cc.mewcraft.adventurelevel.plugin;
 
 import cc.mewcraft.adventurelevel.data.PlayerDataManager;
-
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public interface AdventureLevel {
 
-    @NotNull PlayerDataManager getPlayerDataManager();
+    @NonNull PlayerDataManager getPlayerDataManager();
 
 }

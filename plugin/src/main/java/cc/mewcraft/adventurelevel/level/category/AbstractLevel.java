@@ -7,11 +7,15 @@ import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.parser.ParseException;
 import com.google.common.collect.RangeMap;
+import net.kyori.examination.ExaminableProperty;
+import net.kyori.examination.string.StringExaminer;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public abstract class AbstractLevel implements Level {
 
@@ -126,7 +130,7 @@ public abstract class AbstractLevel implements Level {
         return oldValue;
     }
 
-    @Override public @NotNull Map<String, ExperienceModifier> getExperienceModifiers(ExperienceModifier.Type type) {
+    @Override public @NonNull Map<String, ExperienceModifier> getExperienceModifiers(ExperienceModifier.Type type) {
         return type == ExperienceModifier.Type.ADDITIVE ? additiveModifiers : multiplicativeModifiers;
     }
 
@@ -163,5 +167,15 @@ public abstract class AbstractLevel implements Level {
 
     @Override public int getMaxLevel() {
         return maxLevel;
+    }
+
+    @Override public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
+        return Stream.of(
+                ExaminableProperty.of("totalExperience", this.totalExperience)
+        );
+    }
+
+    @Override public String toString() {
+        return StringExaminer.simpleEscaping().examine(this);
     }
 }

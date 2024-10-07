@@ -28,7 +28,7 @@ synchronization:
   network_latency_milliseconds: 500
 
 # 主等级设置
-main_level:
+primary_level:
   # experience_modifiers 每个途径获取的经验值的调整系数
   # 在把经验值添加到主等级时，将根据获取途径乘以下面的系数
   # https://jd.papermc.io/paper/1.19/org/bukkit/entity/ExperienceOrb.SpawnReason.html

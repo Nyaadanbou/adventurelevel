@@ -25,7 +25,7 @@ public final class PlayerDataCodec implements Codec<PlayerDataPacket> {
         out.writeLong(message.timestamp());
 
         // write experience values
-        out.writeInt(message.mainXp());
+        out.writeInt(message.primaryXp());
         out.writeInt(message.blockBreakXp());
         out.writeInt(message.breedXp());
         out.writeInt(message.entityDeathXp());

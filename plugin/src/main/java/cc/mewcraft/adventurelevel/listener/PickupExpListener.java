@@ -34,8 +34,8 @@ public class PickupExpListener implements Listener {
             return;
         }
 
-        // Handle main level
-        data.getLevel(LevelCategory.MAIN).handleEvent(event);
+        // Handle primary level
+        data.getLevel(LevelCategory.PRIMARY).handleEvent(event);
 
         // Handle other levels
         LevelCategory levelCategory = LevelCategory.toLevelCategory(event.getExperienceOrb().getSpawnReason());

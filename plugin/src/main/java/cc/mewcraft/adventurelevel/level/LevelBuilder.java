@@ -4,17 +4,15 @@ import cc.mewcraft.adventurelevel.level.category.*;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.util.RangeParser;
 import com.ezylang.evalex.Expression;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.ExperienceOrb;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.TreeRangeMap;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.ExperienceOrb;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import org.jetbrains.annotations.NotNull;
 
 class LevelBuilder {
     private final AdventureLevelPlugin plugin;
@@ -34,7 +32,7 @@ class LevelBuilder {
      */
     private final TreeRangeMap<Integer, Expression> exp3;
 
-    public static @NotNull LevelBuilder builder(@NotNull AdventureLevelPlugin plugin, @NotNull ConfigurationSection config) {
+    public static @NonNull LevelBuilder builder(@NonNull AdventureLevelPlugin plugin, @NonNull ConfigurationSection config) {
         Preconditions.checkNotNull(plugin, "plugin");
         Preconditions.checkNotNull(config, "config");
 
@@ -72,15 +70,15 @@ class LevelBuilder {
         }
     }
 
-    public @NotNull Level build(@NotNull LevelCategory category) {
+    public @NonNull Level build(@NonNull LevelCategory category) {
         return switch (category) {
-            case MAIN -> {
+            case PRIMARY -> {
                 Map<ExperienceOrb.SpawnReason, Double> experienceModifiers = new HashMap<>() {{
                     for (final ExperienceOrb.SpawnReason reason : ExperienceOrb.SpawnReason.values()) {
                         put(reason, config.getDouble("experience_modifiers." + reason.name().toLowerCase()));
                     }
                 }};
-                yield new MainLevel(plugin, maximumLevel, exp1, exp2, exp3, experienceModifiers);
+                yield new PrimaryLevel(plugin, maximumLevel, exp1, exp2, exp3, experienceModifiers);
             }
             case PLAYER_DEATH -> new PlayerDeathLevel(plugin, maximumLevel, exp1, exp2, exp3);
             case ENTITY_DEATH -> new EntityDeathLevel(plugin, maximumLevel, exp1, exp2, exp3);

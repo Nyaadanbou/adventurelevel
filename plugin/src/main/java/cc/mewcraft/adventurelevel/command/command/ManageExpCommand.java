@@ -98,7 +98,7 @@ public class ManageExpCommand extends AbstractCommand {
     }
 
     private enum LevelOption {
-        main(playerData -> playerData.getLevel(LevelCategory.MAIN)),
+        primary(playerData -> playerData.getLevel(LevelCategory.PRIMARY)),
         player_death(playerData -> playerData.getLevel(LevelCategory.PLAYER_DEATH)),
         entity_death(playerData -> playerData.getLevel(LevelCategory.ENTITY_DEATH)),
         furnace(playerData -> playerData.getLevel(LevelCategory.FURNACE)),

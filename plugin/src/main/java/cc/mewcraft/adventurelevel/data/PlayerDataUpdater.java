@@ -5,7 +5,7 @@ import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.message.packet.PlayerDataPacket;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.UUID;
 
@@ -28,7 +28,7 @@ public final class PlayerDataUpdater {
      * @param source a data sent on the network from which the states are copied
      * @return an updated {@code data} (the reference remains unchanged)
      */
-    public static @NotNull PlayerData update(final @NotNull PlayerData data, final @NotNull PlayerDataPacket source) {
+    public static @NonNull PlayerData update(final @NonNull PlayerData data, final @NonNull PlayerDataPacket source) {
         for (final LevelCategory category : LevelCategory.values()) {
             Level level = data.asMap().computeIfAbsent(category, LevelFactory::newLevel);
             level.setExperience(source.getExpByCategory(category));
@@ -44,7 +44,7 @@ public final class PlayerDataUpdater {
      * @param source a data loaded from disk which the states are copied from
      * @return an updated {@code data} (the reference remains unchanged)
      */
-    public static @NotNull PlayerData update(final @NotNull PlayerData data, final @NotNull PlayerData source) {
+    public static @NonNull PlayerData update(final @NonNull PlayerData data, final @NonNull PlayerData source) {
         for (final LevelCategory category : LevelCategory.values()) {
             Level level = data.asMap().computeIfAbsent(category, LevelFactory::newLevel);
             level.setExperience(source.getLevel(category).getExperience());

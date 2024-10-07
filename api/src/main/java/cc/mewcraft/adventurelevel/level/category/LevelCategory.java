@@ -1,15 +1,14 @@
 package cc.mewcraft.adventurelevel.level.category;
 
 import org.bukkit.entity.ExperienceOrb;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public enum LevelCategory {
     /**
      * Exp source is implementation-defined
      */
-    MAIN,
+    PRIMARY,
     /**
      * Exp source is {@link org.bukkit.entity.ExperienceOrb.SpawnReason#PLAYER_DEATH}
      */
@@ -51,7 +50,7 @@ public enum LevelCategory {
      * @param reason the spawn reason
      * @return returns an empty if the SpawnReason should not be counted
      */
-    public static @Nullable LevelCategory toLevelCategory(@NotNull ExperienceOrb.SpawnReason reason) {
+    public static @Nullable LevelCategory toLevelCategory(ExperienceOrb.@NonNull SpawnReason reason) {
         return switch (reason) {
             case PLAYER_DEATH -> LevelCategory.PLAYER_DEATH;
             case ENTITY_DEATH -> LevelCategory.ENTITY_DEATH;

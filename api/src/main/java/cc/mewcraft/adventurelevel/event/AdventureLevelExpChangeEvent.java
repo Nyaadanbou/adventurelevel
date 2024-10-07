@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * 当玩家的冒险等级发生变化时触发.
@@ -18,7 +18,7 @@ public class AdventureLevelExpChangeEvent extends PlayerEvent implements Cancell
     private int changingExp;
 
     public AdventureLevelExpChangeEvent(
-            final @NotNull Player who,
+            final @NonNull Player who,
             final Action action,
             final int previousExp,
             final int changingExp
@@ -61,7 +61,7 @@ public class AdventureLevelExpChangeEvent extends PlayerEvent implements Cancell
      *
      * @return 等级变化的类型
      */
-    public @NotNull AdventureLevelExpChangeEvent.Action getAction() {
+    public AdventureLevelExpChangeEvent.@NonNull Action getAction() {
         return action;
     }
 
@@ -73,11 +73,11 @@ public class AdventureLevelExpChangeEvent extends PlayerEvent implements Cancell
         cancelled = cancel;
     }
 
-    @Override public @NotNull HandlerList getHandlers() {
+    @Override public @NonNull HandlerList getHandlers() {
         return HANDLERS;
     }
 
-    public static @NotNull HandlerList getHandlerList() {
+    public static @NonNull HandlerList getHandlerList() {
         return HANDLERS;
     }
 

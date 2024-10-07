@@ -5,8 +5,8 @@ import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.level.modifier.ExperienceModifier;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,16 +14,17 @@ import java.util.UUID;
 
 public class DummyPlayerData implements PlayerData {
     private static final DummyLevel DUMMY_LEVEL = new DummyLevel();
+    private static final UUID DUMMY_UUID = new UUID(0, 0);
 
-    @Override public @NotNull UUID getUuid() {
-        return new UUID(0, 0);
+    @Override public @NonNull UUID getUuid() {
+        return DUMMY_UUID;
     }
 
-    @Override public @NotNull Level getLevel(final LevelCategory category) {
+    @Override public @NonNull Level getLevel(final LevelCategory category) {
         return DUMMY_LEVEL;
     }
 
-    @Override public @NotNull Map<LevelCategory, Level> asMap() {
+    @Override public @NonNull Map<LevelCategory, Level> asMap() {
         return new HashMap<>();
     }
 
@@ -43,12 +44,16 @@ public class DummyPlayerData implements PlayerData {
         return false; // always incomplete
     }
 
-    @Override public PlayerData markAsIncomplete() {
+    @Override public @NonNull PlayerData markAsIncomplete() {
         return this;
     }
 
-    @Override public PlayerData markAsComplete() {
+    @Override public @NonNull PlayerData markAsComplete() {
         return this;
+    }
+
+    @Override public @NonNull String toSimpleString() {
+        return getClass().getSimpleName();
     }
 
     /**
@@ -69,7 +74,7 @@ public class DummyPlayerData implements PlayerData {
 
         @Override public int addExperience(final int value) {return 0;}
 
-        @Override public @NotNull Map<String, ExperienceModifier> getExperienceModifiers(final ExperienceModifier.Type type) {return new HashMap<>();}
+        @Override public @NonNull Map<String, ExperienceModifier> getExperienceModifiers(final ExperienceModifier.Type type) {return new HashMap<>();}
 
         @Override public void addExperienceModifier(final String key, final ExperienceModifier modifier, final ExperienceModifier.Type type) {}
 

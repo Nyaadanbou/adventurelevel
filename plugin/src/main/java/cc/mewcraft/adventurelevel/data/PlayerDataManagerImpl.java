@@ -1,11 +1,9 @@
 package cc.mewcraft.adventurelevel.data;
 
 import cc.mewcraft.adventurelevel.file.DataStorage;
-import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.message.PlayerDataMessenger;
 import cc.mewcraft.adventurelevel.message.packet.PlayerDataPacket;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
-import cc.mewcraft.adventurelevel.util.PlayerUtils;
 import com.google.common.base.Predicates;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -16,7 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.promise.Promise;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -41,8 +39,8 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
     private final long networkLatencyMilliseconds;
 
     private class PlayerDataLoader extends CacheLoader<UUID, PlayerData> {
-        @Override public @NotNull PlayerData load(
-                final @NotNull UUID key
+        @Override public @NonNull PlayerData load(
+                final @NonNull UUID key
         ) {
             RealPlayerData data = new RealPlayerData(plugin, key);
             Schedulers.builder()
@@ -52,24 +50,22 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
                         if (data.complete()) {
                             return; // It is already complete - do nothing
                         }
-
                         // Get data from message store first
                         PlayerDataPacket message = messenger.get(key);
                         if (message != null) {
                             PlayerDataUpdater.update(data, message).markAsComplete();
-                            logger.info("Loaded userdata into cache: name={}, mainXp={}", PlayerUtils.getNameFromUUID(key), message.mainXp());
-                            return;
+                        } else {
+                            // The message store does not have the data,
+                            // so load the data from file (or database).
+                            PlayerData fromFile = storage.load(key);
+                            if (fromFile.equals(PlayerData.DUMMY)) {
+                                fromFile = storage.create(key); // Not existing in disk - create one
+                            }
+                            PlayerDataUpdater.update(data, fromFile).markAsComplete();
                         }
-
-                        // The message store does not have the data,
-                        // so load the data from file and return it.
-                        PlayerData fromFile = storage.load(key);
-                        if (fromFile.equals(PlayerData.DUMMY)) {
-                            fromFile = storage.create(key); // Not existing in disk - create one
-                        }
-                        PlayerDataUpdater.update(data, fromFile).markAsComplete();
-                        logger.info("Loaded userdata into cache: name={}, mainXp={}", PlayerUtils.getNameFromUUID(key), fromFile.getLevel(LevelCategory.MAIN).getExperience());
+                        logger.info("Fully loaded userdata into cache: {}", data.toSimpleString());
                     });
+            logger.info("Created empty userdata in cache: {}", data.toSimpleString());
             return data;
         }
     }
@@ -80,7 +76,7 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
     private class PlayerDataRemovalListener implements RemovalListener<UUID, PlayerData> {
         @Override public void onRemoval(final RemovalNotification<UUID, PlayerData> notification) {
             PlayerData data = Objects.requireNonNull(notification.getValue(), "data");
-            logger.info("Unloaded userdata from cache: name={}, mainXp={}", PlayerUtils.getNameFromUUID(data.getUuid()), data.getLevel(LevelCategory.MAIN).getExperience());
+            logger.info("Unloaded userdata from cache: {}", data.toSimpleString());
         }
     }
 
@@ -98,15 +94,15 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
         this.networkLatencyMilliseconds = Math.max(0, plugin.getConfig().getLong("synchronization.network_latency_milliseconds"));
     }
 
-    @Override public @NotNull Map<UUID, PlayerData> asMap() {
+    @Override public @NonNull Map<UUID, PlayerData> asMap() {
         return loadingCache.asMap();
     }
 
-    @Override public @NotNull PlayerData load(final @NotNull UUID uuid) {
+    @Override public @NonNull PlayerData load(final @NonNull UUID uuid) {
         return loadingCache.getUnchecked(uuid);
     }
 
-    @Override public @NotNull Promise<PlayerData> save(final @NotNull PlayerData playerData) {
+    @Override public @NonNull Promise<PlayerData> save(final @NonNull PlayerData playerData) {
         return !playerData.complete()
                 ? Promise.supplyingExceptionallyAsync(() -> playerData)
                 : Promise.supplyingAsync(() -> {
@@ -115,12 +111,12 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
                 });
     }
 
-    @Override public @NotNull UUID unload(final @NotNull UUID uuid) {
+    @Override public @NonNull UUID unload(final @NonNull UUID uuid) {
         loadingCache.invalidate(uuid);
         return uuid;
     }
 
-    @Override public void refresh(final @NotNull UUID uuid) {
+    @Override public void refresh(final @NonNull UUID uuid) {
         loadingCache.refresh(uuid);
     }
 

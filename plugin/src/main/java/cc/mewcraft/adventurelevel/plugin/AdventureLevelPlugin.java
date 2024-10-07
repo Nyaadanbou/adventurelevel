@@ -16,7 +16,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 
 public class AdventureLevelPlugin extends ExtendedJavaPlugin implements AdventureLevel {
@@ -29,7 +29,7 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
     private PlayerDataManager playerDataManager;
     private Translations translations;
 
-    public static @NotNull AdventureLevelPlugin getInstance() {
+    public static @NonNull AdventureLevelPlugin getInstance() {
         return INSTANCE;
     }
 
@@ -79,19 +79,19 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
         AdventureLevelProvider.register(this);
     }
 
-    public @NotNull DataStorage getDataStorage() {
+    public @NonNull DataStorage getDataStorage() {
         return dataStorage;
     }
 
-    public @NotNull PlayerDataManager getPlayerDataManager() {
+    public @NonNull PlayerDataManager getPlayerDataManager() {
         return playerDataManager;
     }
 
-    public @NotNull PlayerDataMessenger getPlayerDataMessenger() {
+    public @NonNull PlayerDataMessenger getPlayerDataMessenger() {
         return playerDataMessenger;
     }
 
-    public @NotNull Translations getLang() {
+    public @NonNull Translations getLang() {
         return translations;
     }
 }

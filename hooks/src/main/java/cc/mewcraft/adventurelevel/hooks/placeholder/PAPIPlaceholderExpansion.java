@@ -9,8 +9,8 @@ import jakarta.inject.Singleton;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.lucko.helper.terminable.Terminable;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,47 +40,47 @@ public class PAPIPlaceholderExpansion implements Terminable {
     }
 
     private class AdventureLevelExpansion extends PlaceholderExpansion {
-        @Override public @Nullable String onRequest(final OfflinePlayer player, final @NotNull String params) {
+        @Override public @Nullable String onRequest(final OfflinePlayer player, final @NonNull String params) {
             PlayerData data = playerDataManager.load(player);
             if (!data.complete()) return "";
 
-            Level main = data.getLevel(LevelCategory.MAIN);
+            Level primary = data.getLevel(LevelCategory.PRIMARY);
 
             return switch (params) {
-                case "level" -> String.valueOf(main.getLevel());
+                case "level" -> String.valueOf(primary.getLevel());
                 case "level_progress" -> {
-                    int currentExp = main.getExperience();
-                    double currentLevel = main.calculateTotalLevel(currentExp);
-                    yield BigDecimal.valueOf(currentLevel % 1)
+                    int currExp = primary.getExperience();
+                    double currLevel = primary.calculateTotalLevel(currExp);
+                    yield BigDecimal.valueOf(currLevel % 1)
                             .scaleByPowerOfTen(2)
                             .setScale(0, RoundingMode.FLOOR)
                             .toPlainString();
                 }
-                case "experience" -> String.valueOf(main.getExperience());
+                case "experience" -> String.valueOf(primary.getExperience());
                 case "experience_progress" -> {
-                    int exp = main.getExperience();
-                    int level = main.getLevel();
-                    int levelTotalExp = main.calculateTotalExperience(level);
-                    yield String.valueOf(exp - levelTotalExp);
+                    int level = primary.getLevel();
+                    int currExp = primary.getExperience();
+                    int totalExp = primary.calculateTotalExperience(level);
+                    yield String.valueOf(currExp - totalExp);
                 }
                 case "experience_progress_max" -> {
-                    int level = main.getLevel();
-                    int nextLevelExpNeeded = main.calculateNeededExperience(level + 1);
-                    yield String.valueOf(nextLevelExpNeeded);
+                    int level = primary.getLevel();
+                    int expUntilNextLevel = primary.calculateNeededExperience(level + 1);
+                    yield String.valueOf(expUntilNextLevel);
                 }
                 default -> "";
             };
         }
 
-        @Override public @NotNull String getIdentifier() {
+        @Override public @NonNull String getIdentifier() {
             return "adventurelevel";
         }
 
-        @Override public @NotNull String getAuthor() {
+        @Override public @NonNull String getAuthor() {
             return "Nailm";
         }
 
-        @Override public @NotNull String getVersion() {
+        @Override public @NonNull String getVersion() {
             return "1.0.0";
         }
 

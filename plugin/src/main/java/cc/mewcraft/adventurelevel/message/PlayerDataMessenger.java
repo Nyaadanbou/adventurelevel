@@ -6,7 +6,6 @@ import cc.mewcraft.adventurelevel.data.PlayerDataUpdater;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.message.packet.PlayerDataPacket;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
-import cc.mewcraft.adventurelevel.util.PlayerUtils;
 import cc.mewcraft.nettowaku.ServerInfo;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -16,8 +15,8 @@ import me.lucko.helper.messaging.Channel;
 import me.lucko.helper.messaging.ChannelAgent;
 import me.lucko.helper.messaging.Messenger;
 import me.lucko.helper.terminable.Terminable;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 
 import java.time.Duration;
@@ -91,7 +90,7 @@ public class PlayerDataMessenger implements Terminable {
                     // in which case the CacheLoader will handle the data loading.
 
                     PlayerDataUpdater.update(data, message);
-                    logger.info("Update userdata in cache: name={}, mainXp={}", PlayerUtils.getNameFromUUIDNullable(uuid), message.mainXp());
+                    logger.info("Update userdata in cache: {}", message.toSimpleString());
                 }
             }
         });
@@ -105,12 +104,12 @@ public class PlayerDataMessenger implements Terminable {
      *
      * @param data the player data to be sent to the channel
      */
-    public void publish(@NotNull PlayerData data) {
+    public void publish(@NonNull PlayerData data) {
         channel.sendMessage(new PlayerDataPacket(
                 data.getUuid(),
                 ServerInfo.SERVER_ID.get(),
                 System.currentTimeMillis(),
-                data.getLevel(LevelCategory.MAIN).getExperience(),
+                data.getLevel(LevelCategory.PRIMARY).getExperience(),
                 data.getLevel(LevelCategory.BLOCK_BREAK).getExperience(),
                 data.getLevel(LevelCategory.BREED).getExperience(),
                 data.getLevel(LevelCategory.ENTITY_DEATH).getExperience(),
@@ -121,7 +120,7 @@ public class PlayerDataMessenger implements Terminable {
                 data.getLevel(LevelCategory.PLAYER_DEATH).getExperience(),
                 data.getLevel(LevelCategory.VILLAGER_TRADE).getExperience()
         )).thenAcceptAsync(n ->
-                logger.info("Published userdata to channel: name={}, mainXp={}", PlayerUtils.getNameFromUUID(data.getUuid()), data.getLevel(LevelCategory.MAIN).getExperience())
+                logger.info("Published userdata to channel: {}", data.toSimpleString())
         );
     }
 
@@ -133,12 +132,12 @@ public class PlayerDataMessenger implements Terminable {
     public @Nullable PlayerDataPacket get(UUID uuid) {
         PlayerDataPacket packet = messageStore.getIfPresent(uuid);
         if (packet != null) {
-            logger.info("Access userdata from messenger: name={}, mainXp={}", PlayerUtils.getNameFromUUIDNullable(uuid), packet.mainXp());
+            logger.info("Access userdata from messenger: {}", packet.toSimpleString());
         }
         return packet;
     }
 
-    @Override public void close() throws Exception {
+    @Override public void close() {
         agent.close();
     }
 }

@@ -30,22 +30,22 @@ public class MiniPlaceholderExpansion implements Terminable {
         expansion = Expansion.builder("adventurelevel")
                 .filter(Player.class)
 
-                // return current main level
+                // return current primary level
                 .audiencePlaceholder("level", (audience, queue, ctx) -> {
                     PlayerData data = playerDataManager.load((Player) audience);
                     if (!data.complete()) return EMPTY_TAG;
-                    String level = String.valueOf(data.getLevel(LevelCategory.MAIN).getLevel());
-                    return Tag.preProcessParsed(level);
+                    String primaryLevel = String.valueOf(data.getLevel(LevelCategory.PRIMARY).getLevel());
+                    return Tag.preProcessParsed(primaryLevel);
                 })
 
                 // return progress to next level in percent (1-99)
                 .audiencePlaceholder("level_progress", (audience, queue, ctx) -> {
                     PlayerData data = playerDataManager.load((Player) audience);
                     if (!data.complete()) return EMPTY_TAG;
-                    Level level = data.getLevel(LevelCategory.MAIN);
-                    int currentExp = level.getExperience();
-                    double currentLevel = level.calculateTotalLevel(currentExp);
-                    String text = BigDecimal.valueOf(currentLevel % 1)
+                    Level primaryLevel = data.getLevel(LevelCategory.PRIMARY);
+                    int currExp = primaryLevel.getExperience();
+                    double currLevel = primaryLevel.calculateTotalLevel(currExp);
+                    String text = BigDecimal.valueOf(currLevel % 1)
                             .scaleByPowerOfTen(2)
                             .setScale(0, RoundingMode.FLOOR)
                             .toPlainString();
@@ -56,19 +56,19 @@ public class MiniPlaceholderExpansion implements Terminable {
                 .audiencePlaceholder("experience", (audience, queue, ctx) -> {
                     PlayerData data = playerDataManager.load((Player) audience);
                     if (!data.complete()) return EMPTY_TAG;
-                    String level = String.valueOf(data.getLevel(LevelCategory.MAIN).getExperience());
-                    return Tag.preProcessParsed(level);
+                    String primaryLevel = String.valueOf(data.getLevel(LevelCategory.PRIMARY).getExperience());
+                    return Tag.preProcessParsed(primaryLevel);
                 })
 
                 // return experience gained for current progress
                 .audiencePlaceholder("experience_progress", (audience, queue, ctx) -> {
                     PlayerData data = playerDataManager.load((Player) audience);
                     if (!data.complete()) return EMPTY_TAG;
-                    Level mainLevel = data.getLevel(LevelCategory.MAIN);
-                    int exp = mainLevel.getExperience();
-                    int level = mainLevel.getLevel();
-                    int levelTotalExp = mainLevel.calculateTotalExperience(level);
-                    String text = String.valueOf(exp - levelTotalExp);
+                    Level primaryLevel = data.getLevel(LevelCategory.PRIMARY);
+                    int level = primaryLevel.getLevel();
+                    int currExp = primaryLevel.getExperience();
+                    int totalExp = primaryLevel.calculateTotalExperience(level);
+                    String text = String.valueOf(currExp - totalExp);
                     return Tag.preProcessParsed(text);
                 })
 
@@ -76,10 +76,10 @@ public class MiniPlaceholderExpansion implements Terminable {
                 .audiencePlaceholder("experience_progress_max", (audience, queue, ctx) -> {
                     PlayerData data = playerDataManager.load((Player) audience);
                     if (!data.complete()) return EMPTY_TAG;
-                    Level mainLevel = data.getLevel(LevelCategory.MAIN);
-                    int level = mainLevel.getLevel();
-                    int nextLevelExpNeeded = mainLevel.calculateNeededExperience(level + 1);
-                    String text = String.valueOf(nextLevelExpNeeded);
+                    Level primaryLevel = data.getLevel(LevelCategory.PRIMARY);
+                    int level = primaryLevel.getLevel();
+                    int expUntilNextLevel = primaryLevel.calculateNeededExperience(level + 1);
+                    String text = String.valueOf(expUntilNextLevel);
                     return Tag.preProcessParsed(text);
                 })
 

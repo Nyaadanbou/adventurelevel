@@ -11,11 +11,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
 
-public class MainLevel extends AbstractLevel {
+public class PrimaryLevel extends AbstractLevel {
 
     private final Map<ExperienceOrb.SpawnReason, Double> experienceModifiers;
 
-    public MainLevel(
+    public PrimaryLevel(
             final AdventureLevelPlugin plugin,
             final int maxLevel,
             final RangeMap<Integer, Expression> convertLevelToExpFormula,

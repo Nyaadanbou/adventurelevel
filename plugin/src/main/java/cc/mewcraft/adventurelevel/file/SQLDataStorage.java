@@ -11,7 +11,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 
 import java.sql.Connection;
@@ -80,11 +80,11 @@ public class SQLDataStorage extends AbstractDataStorage {
 
         this.insertUserdataQuery = """
                 INSERT INTO %userdata_table%
-                (`uuid`, `name`, `main_exp`, `player_death_exp`, `entity_death_exp`, `furnace_exp`, `breed_exp`, `villager_trade_exp`, `fishing_exp`, `block_break_exp`, `exp_bottle_exp`, `grindstone_exp`)
+                (`uuid`, `name`, `primary_exp`, `player_death_exp`, `entity_death_exp`, `furnace_exp`, `breed_exp`, `villager_trade_exp`, `fishing_exp`, `block_break_exp`, `exp_bottle_exp`, `grindstone_exp`)
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
                 `uuid` = VALUES(`uuid`),
                 `name` = VALUES(`name`),
-                `main_exp` = VALUES(`main_exp`),
+                `primary_exp` = VALUES(`primary_exp`),
                 `player_death_exp` = VALUES(`player_death_exp`),
                 `entity_death_exp` = VALUES(`entity_death_exp`),
                 `furnace_exp` = VALUES(`furnace_exp`),
@@ -106,7 +106,7 @@ public class SQLDataStorage extends AbstractDataStorage {
                 %userdata_table% (
                 `uuid` varchar(36) NOT NULL PRIMARY KEY,
                 `name` varchar(16),
-                `main_exp` int(11) DEFAULT 0,
+                `primary_exp` int(11) DEFAULT 0,
                 `player_death_exp` int(11) DEFAULT 0,
                 `entity_death_exp` int(11) DEFAULT 0,
                 `furnace_exp` int(11) DEFAULT 0,
@@ -155,13 +155,13 @@ public class SQLDataStorage extends AbstractDataStorage {
         }
     }
 
-    @Override public @NotNull PlayerData create(final UUID uuid) {
+    @Override public @NonNull PlayerData create(final UUID uuid) {
         try (Connection conn = connectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(insertUserdataQuery)
         ) {
             // Construct a map of empty levels
             ConcurrentHashMap<LevelCategory, Level> levels = new ConcurrentHashMap<>() {{
-                put(LevelCategory.MAIN, LevelFactory.newLevel(LevelCategory.MAIN));
+                put(LevelCategory.PRIMARY, LevelFactory.newLevel(LevelCategory.PRIMARY));
                 put(LevelCategory.PLAYER_DEATH, LevelFactory.newLevel(LevelCategory.PLAYER_DEATH));
                 put(LevelCategory.ENTITY_DEATH, LevelFactory.newLevel(LevelCategory.ENTITY_DEATH));
                 put(LevelCategory.FURNACE, LevelFactory.newLevel(LevelCategory.FURNACE));
@@ -189,17 +189,17 @@ public class SQLDataStorage extends AbstractDataStorage {
             stmt.setInt(12, 0);
             stmt.execute();
 
-            logger.info("Created new userdata in database: name={}, mainXp={}", PlayerUtils.getNameFromUUID(uuid), playerData.getLevel(LevelCategory.MAIN).getExperience());
+            logger.info("Created new userdata in database: {}", playerData.toSimpleString());
             return playerData;
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        logger.warn("Failed to create new userdata in database: name={}, uuid={}", PlayerUtils.getNameFromUUID(uuid), uuid);
+        logger.warn("Failed to create new userdata in database for {}", PlayerUtils.getReadableString(uuid));
         return PlayerData.DUMMY;
     }
 
-    @Override public @NotNull PlayerData load(final UUID uuid) {
+    @Override public @NonNull PlayerData load(final UUID uuid) {
         try (Connection conn = connectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(selectUserdataQuery)
         ) {
@@ -208,7 +208,7 @@ public class SQLDataStorage extends AbstractDataStorage {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     // Read values from the query results
-                    int mainXp = rs.getInt(3);
+                    int primaryXp = rs.getInt(3);
                     int playerDeathXp = rs.getInt(4);
                     int entityDeathXp = rs.getInt(5);
                     int furnaceXp = rs.getInt(6);
@@ -221,7 +221,7 @@ public class SQLDataStorage extends AbstractDataStorage {
 
                     // Construct the map of levels with loaded xp
                     ConcurrentHashMap<LevelCategory, Level> levels = new ConcurrentHashMap<>() {{
-                        put(LevelCategory.MAIN, LevelFactory.newLevel(LevelCategory.MAIN).withExperience(mainXp));
+                        put(LevelCategory.PRIMARY, LevelFactory.newLevel(LevelCategory.PRIMARY).withExperience(primaryXp));
                         put(LevelCategory.PLAYER_DEATH, LevelFactory.newLevel(LevelCategory.PLAYER_DEATH).withExperience(playerDeathXp));
                         put(LevelCategory.ENTITY_DEATH, LevelFactory.newLevel(LevelCategory.ENTITY_DEATH).withExperience(entityDeathXp));
                         put(LevelCategory.FURNACE, LevelFactory.newLevel(LevelCategory.FURNACE).withExperience(furnaceXp));
@@ -233,21 +233,22 @@ public class SQLDataStorage extends AbstractDataStorage {
                         put(LevelCategory.GRINDSTONE, LevelFactory.newLevel(LevelCategory.GRINDSTONE).withExperience(grindstoneXp));
                     }};
 
-                    logger.info("Loaded userdata from database: name={}, mainXp={}", PlayerUtils.getNameFromUUID(uuid), mainXp);
-                    return new RealPlayerData(plugin, uuid, levels);
+                    RealPlayerData playerData = new RealPlayerData(plugin, uuid, levels);
+                    logger.info("Loaded userdata from database: {}", playerData.toSimpleString());
+                    return playerData;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        logger.warn("Userdata not found in database: name={}, uuid={}", PlayerUtils.getNameFromUUID(uuid), uuid);
+        logger.warn("Userdata not found in database for {}", PlayerUtils.getReadableString(uuid));
         return PlayerData.DUMMY;
     }
 
     @Override public void save(final PlayerData playerData) {
         if (playerData.equals(PlayerData.DUMMY) || !playerData.complete()) {
-            logger.info("Skipped saving userdata to database: name={},uuid={}", PlayerUtils.getNameFromUUID(playerData.getUuid()), playerData.getUuid());
+            logger.info("Skipped saving userdata to database for {}", playerData.toSimpleString());
             return;
         }
 
@@ -256,7 +257,7 @@ public class SQLDataStorage extends AbstractDataStorage {
         ) {
             stmt.setString(1, playerData.getUuid().toString());
             stmt.setString(2, PlayerUtils.getNameFromUUID(playerData.getUuid()).toLowerCase());
-            stmt.setInt(3, playerData.getLevel(LevelCategory.MAIN).getExperience());
+            stmt.setInt(3, playerData.getLevel(LevelCategory.PRIMARY).getExperience());
             stmt.setInt(4, playerData.getLevel(LevelCategory.PLAYER_DEATH).getExperience());
             stmt.setInt(5, playerData.getLevel(LevelCategory.ENTITY_DEATH).getExperience());
             stmt.setInt(6, playerData.getLevel(LevelCategory.FURNACE).getExperience());
@@ -268,7 +269,7 @@ public class SQLDataStorage extends AbstractDataStorage {
             stmt.setInt(12, playerData.getLevel(LevelCategory.GRINDSTONE).getExperience());
             stmt.execute();
 
-            logger.info("Saved userdata to database: name={}, mainXp={}", PlayerUtils.getNameFromUUID(playerData.getUuid()), playerData.getLevel(LevelCategory.MAIN).getExperience());
+            logger.info("Saved userdata to database: {}", playerData.toSimpleString());
         } catch (SQLException e) {
             e.printStackTrace();
         }
