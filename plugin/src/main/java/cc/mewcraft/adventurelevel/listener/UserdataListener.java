@@ -8,15 +8,21 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.slf4j.Logger;
 
 @Singleton
 public class UserdataListener implements Listener {
 
     private final AdventureLevelPlugin plugin;
+    private final Logger logger;
 
     @Inject
-    public UserdataListener(final AdventureLevelPlugin plugin) {
+    public UserdataListener(
+            final AdventureLevelPlugin plugin,
+            final Logger logger
+    ) {
         this.plugin = plugin;
+        this.logger = logger;
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -53,9 +59,10 @@ public class UserdataListener implements Listener {
         if (data.complete()) {
             playerDataMessenger.publish(data);
             playerDataManager.save(data);
+            playerDataManager.unload(player);
         } else {
-            plugin.getSLF4JLogger().warn(
-                    "Possible errors! {} quit the server but their data is marked as incomplete - aborting to publish data to the network", player.name()
+            logger.warn(
+                    "Possible errors! {} quit the server but their data is marked as incomplete - aborting to publish data to the network", player.getName()
             );
         }
     }

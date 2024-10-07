@@ -2,13 +2,13 @@ package cc.mewcraft.adventurelevel.data;
 
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
 
-import org.jetbrains.annotations.NotNull;
-
-@SuppressWarnings("UnusedReturnValue")
 public interface PlayerData {
 
     /**
@@ -25,6 +25,21 @@ public interface PlayerData {
     @NotNull Level getLevel(LevelCategory category);
 
     @NotNull Map<LevelCategory, Level> asMap();
+
+    /**
+     * 方便获取 {@link #getUuid()} 对应的 {@link Player}.
+     */
+    @Nullable Player getPlayer();
+
+    /**
+     * 方便调用对应玩家的 {@link Player#isOnline()}.
+     */
+    boolean isOnline();
+
+    /**
+     * 方便调用对应玩家的 {@link Player#isConnected()}.
+     */
+    boolean isConnected();
 
     /**
      * Checks whether this PlayerData has been fully loaded, i.e., its states are valid and up-to-date.

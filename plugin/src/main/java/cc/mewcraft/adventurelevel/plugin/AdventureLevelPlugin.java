@@ -17,11 +17,12 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 public class AdventureLevelPlugin extends ExtendedJavaPlugin implements AdventureLevel {
     private static AdventureLevelPlugin INSTANCE;
 
-    @SuppressWarnings("FieldCanBeLocal")
+    private Logger logger;
     private Injector injector;
     private DataStorage dataStorage;
     private PlayerDataMessenger playerDataMessenger;
@@ -35,12 +36,11 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
     @Override protected void enable() {
         INSTANCE = this;
 
-        // Register API instance
-        AdventureLevelProvider.register(this);
-
+        logger = getSLF4JLogger();
         injector = Guice.createInjector(new AbstractModule() {
             @Override protected void configure() {
                 bind(AdventureLevelPlugin.class).toInstance(AdventureLevelPlugin.this);
+                bind(Logger.class).toInstance(getSLF4JLogger());
                 bind(DataStorage.class).to(SQLDataStorage.class);
                 bind(PlayerDataManager.class).to(PlayerDataManagerImpl.class);
             }
@@ -72,12 +72,11 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
         if (isPluginPresent("LuckPerms"))
             injector.getInstance(LevelContextCalculator.class).register();
 
-        try {
-            new CommandManager(this);
-        } catch (Exception e) {
-            getSLF4JLogger().error("Failed to register commands", e);
-            e.printStackTrace();
-        }
+        // Register commands
+        new CommandManager(this);
+
+        // Register API instance
+        AdventureLevelProvider.register(this);
     }
 
     public @NotNull DataStorage getDataStorage() {

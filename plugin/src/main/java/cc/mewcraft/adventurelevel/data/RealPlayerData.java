@@ -4,7 +4,10 @@ import cc.mewcraft.adventurelevel.event.AdventureLevelDataLoadEvent;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Objects;
@@ -47,8 +50,6 @@ public class RealPlayerData implements PlayerData {
         this.plugin = plugin;
         this.uuid = uuid;
         this.levelData = new ConcurrentHashMap<>();
-
-        markAsIncomplete();
     }
 
     /**
@@ -66,8 +67,6 @@ public class RealPlayerData implements PlayerData {
         this.plugin = plugin;
         this.uuid = uuid;
         this.levelData = levelData;
-
-        markAsComplete();
     }
 
     @Override public @NotNull UUID getUuid() {
@@ -80,6 +79,20 @@ public class RealPlayerData implements PlayerData {
 
     @Override public @NotNull Map<LevelCategory, Level> asMap() {
         return levelData;
+    }
+
+    @Override public @Nullable Player getPlayer() {
+        return Bukkit.getPlayer(uuid);
+    }
+
+    @Override public boolean isOnline() {
+        Player player = getPlayer();
+        return player != null && player.isOnline();
+    }
+
+    @Override public boolean isConnected() {
+        Player player = getPlayer();
+        return player != null && player.isConnected();
     }
 
     @Override public boolean complete() {

@@ -18,6 +18,7 @@ import me.lucko.helper.messaging.Messenger;
 import me.lucko.helper.terminable.Terminable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -33,7 +34,7 @@ import java.util.UUID;
 public class PlayerDataMessenger implements Terminable {
     private static final String SYNC_CHANNEL = "advtrlvl-sync";
 
-    private final AdventureLevelPlugin plugin;
+    private final Logger logger;
     private final PlayerDataManager playerDataManager;
 
     /**
@@ -54,9 +55,10 @@ public class PlayerDataMessenger implements Terminable {
     @Inject
     public PlayerDataMessenger(
             final AdventureLevelPlugin plugin,
+            final Logger logger,
             final PlayerDataManager playerDataManager
     ) {
-        this.plugin = plugin;
+        this.logger = logger;
         this.playerDataManager = playerDataManager;
 
         long networkLatencyMilliseconds = Math.max(0, plugin.getConfig().getLong("synchronization.network_latency_milliseconds"));
@@ -89,7 +91,7 @@ public class PlayerDataMessenger implements Terminable {
                     // in which case the CacheLoader will handle the data loading.
 
                     PlayerDataUpdater.update(data, message);
-                    plugin.getSLF4JLogger().info("Update userdata in cache: name={}, mainXp={}", PlayerUtils.getNameFromUUIDNullable(uuid), message.mainXp());
+                    logger.info("Update userdata in cache: name={}, mainXp={}", PlayerUtils.getNameFromUUIDNullable(uuid), message.mainXp());
                 }
             }
         });
@@ -118,7 +120,9 @@ public class PlayerDataMessenger implements Terminable {
                 data.getLevel(LevelCategory.GRINDSTONE).getExperience(),
                 data.getLevel(LevelCategory.PLAYER_DEATH).getExperience(),
                 data.getLevel(LevelCategory.VILLAGER_TRADE).getExperience()
-        )).thenAcceptAsync(n -> plugin.getSLF4JLogger().info("Published userdata to channel: name={}, mainXp={}", PlayerUtils.getNameFromUUID(data.getUuid()), data.getLevel(LevelCategory.MAIN).getExperience()));
+        )).thenAcceptAsync(n ->
+                logger.info("Published userdata to channel: name={}, mainXp={}", PlayerUtils.getNameFromUUID(data.getUuid()), data.getLevel(LevelCategory.MAIN).getExperience())
+        );
     }
 
     /**
@@ -127,7 +131,11 @@ public class PlayerDataMessenger implements Terminable {
      * @return the PlayerData cached in the message store, or null if it's not cached
      */
     public @Nullable PlayerDataPacket get(UUID uuid) {
-        return messageStore.getIfPresent(uuid);
+        PlayerDataPacket packet = messageStore.getIfPresent(uuid);
+        if (packet != null) {
+            logger.info("Access userdata from messenger: name={}, mainXp={}", PlayerUtils.getNameFromUUIDNullable(uuid), packet.mainXp());
+        }
+        return packet;
     }
 
     @Override public void close() throws Exception {

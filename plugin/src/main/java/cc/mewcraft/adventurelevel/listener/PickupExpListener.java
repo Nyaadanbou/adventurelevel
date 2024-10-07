@@ -3,7 +3,6 @@ package cc.mewcraft.adventurelevel.listener;
 import cc.mewcraft.adventurelevel.data.PlayerData;
 import cc.mewcraft.adventurelevel.data.PlayerDataManager;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
-import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -18,12 +17,10 @@ import static org.bukkit.event.EventPriority.HIGH;
 @Singleton
 public class PickupExpListener implements Listener {
 
-    private final AdventureLevelPlugin plugin;
     private final PlayerDataManager playerDataManager;
 
     @Inject
-    public PickupExpListener(final AdventureLevelPlugin plugin, final PlayerDataManager playerDataManager) {
-        this.plugin = plugin;
+    public PickupExpListener(final PlayerDataManager playerDataManager) {
         this.playerDataManager = playerDataManager;
     }
 

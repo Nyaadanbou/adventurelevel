@@ -16,7 +16,7 @@ public class CommandManager {
     private final AdventureLevelPlugin plugin;
     private final LegacyPaperCommandManager<CommandSender> manager;
 
-    public CommandManager(AdventureLevelPlugin plugin) throws Exception {
+    public CommandManager(AdventureLevelPlugin plugin) {
         this.plugin = plugin;
         this.manager = new LegacyPaperCommandManager<>(plugin, ExecutionCoordinator.simpleCoordinator(), SenderMapper.identity());
         this.manager.registerLegacyPaperBrigadier();

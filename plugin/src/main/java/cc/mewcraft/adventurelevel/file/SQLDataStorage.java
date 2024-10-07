@@ -12,6 +12,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -51,9 +52,16 @@ public class SQLDataStorage extends AbstractDataStorage {
     // Hikari instances
     private HikariDataSource connectionPool;
 
+    // Logger
+    private final Logger logger;
+
     @Inject
-    public SQLDataStorage(final AdventureLevelPlugin plugin) {
+    public SQLDataStorage(
+            final AdventureLevelPlugin plugin,
+            final Logger logger
+    ) {
         super(plugin);
+        this.logger = logger;
 
         this.host = requireNonNull(plugin.getConfig().getString("database.credentials.host"));
         this.port = requireNonNull(plugin.getConfig().getString("database.credentials.port"));
@@ -181,15 +189,13 @@ public class SQLDataStorage extends AbstractDataStorage {
             stmt.setInt(12, 0);
             stmt.execute();
 
-            plugin.getSLF4JLogger().info("Created userdata in database: name={}, mainXp={}", PlayerUtils.getNameFromUUID(uuid), playerData.getLevel(LevelCategory.MAIN).getExperience());
-
+            logger.info("Created new userdata in database: name={}, mainXp={}", PlayerUtils.getNameFromUUID(uuid), playerData.getLevel(LevelCategory.MAIN).getExperience());
             return playerData;
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        plugin.getSLF4JLogger().warn("Failed to create userdata in database: name={}, uuid={}", PlayerUtils.getNameFromUUID(uuid), uuid);
-
+        logger.warn("Failed to create new userdata in database: name={}, uuid={}", PlayerUtils.getNameFromUUID(uuid), uuid);
         return PlayerData.DUMMY;
     }
 
@@ -227,9 +233,7 @@ public class SQLDataStorage extends AbstractDataStorage {
                         put(LevelCategory.GRINDSTONE, LevelFactory.newLevel(LevelCategory.GRINDSTONE).withExperience(grindstoneXp));
                     }};
 
-                    plugin.getSLF4JLogger().info("Fully loaded userdata from database: name={}, mainXp={}", PlayerUtils.getNameFromUUID(uuid), mainXp);
-
-                    // Collect all above and construct the final data
+                    logger.info("Loaded userdata from database: name={}, mainXp={}", PlayerUtils.getNameFromUUID(uuid), mainXp);
                     return new RealPlayerData(plugin, uuid, levels);
                 }
             }
@@ -237,19 +241,15 @@ public class SQLDataStorage extends AbstractDataStorage {
             e.printStackTrace();
         }
 
-        plugin.getSLF4JLogger().warn("Userdata not found in database: name={}, uuid={}", PlayerUtils.getNameFromUUID(uuid), uuid);
-
+        logger.warn("Userdata not found in database: name={}, uuid={}", PlayerUtils.getNameFromUUID(uuid), uuid);
         return PlayerData.DUMMY;
     }
 
     @Override public void save(final PlayerData playerData) {
-        /*if (playerData.equals(PlayerData.DUMMY) || !playerData.complete()) {
-            plugin.getSLF4JLogger().info("Skipped saving userdata to database: name={},uuid={}",
-                PlayerUtils.getNameFromUUID(playerData.getUuid()),
-                playerData.getUuid()
-            );
+        if (playerData.equals(PlayerData.DUMMY) || !playerData.complete()) {
+            logger.info("Skipped saving userdata to database: name={},uuid={}", PlayerUtils.getNameFromUUID(playerData.getUuid()), playerData.getUuid());
             return;
-        }*/
+        }
 
         try (Connection conn = connectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(insertUserdataQuery)
@@ -268,7 +268,7 @@ public class SQLDataStorage extends AbstractDataStorage {
             stmt.setInt(12, playerData.getLevel(LevelCategory.GRINDSTONE).getExperience());
             stmt.execute();
 
-            plugin.getSLF4JLogger().info("Saved userdata to database: name={}, mainXp={}", PlayerUtils.getNameFromUUID(playerData.getUuid()), playerData.getLevel(LevelCategory.MAIN).getExperience());
+            logger.info("Saved userdata to database: name={}, mainXp={}", PlayerUtils.getNameFromUUID(playerData.getUuid()), playerData.getLevel(LevelCategory.MAIN).getExperience());
         } catch (SQLException e) {
             e.printStackTrace();
         }
