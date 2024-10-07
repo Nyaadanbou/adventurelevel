@@ -5,6 +5,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 public interface AdventureLevel {
 
-    @NonNull PlayerDataManager getPlayerDataManager();
+    @NonNull PlayerDataManager playerDataManager();
 
 }

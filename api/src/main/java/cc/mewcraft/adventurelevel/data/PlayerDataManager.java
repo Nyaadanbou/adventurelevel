@@ -32,6 +32,11 @@ public interface PlayerDataManager extends Terminable {
     @NonNull Map<UUID, PlayerData> asMap();
 
     /**
+     * Cleans up all cached player data. This will force the data to be reloaded from data storage.
+     */
+    void cleanup();
+
+    /**
      * Implementation Requirement: This should save all cached player data to file when being called.
      */
     @Override void close() throws Exception;
