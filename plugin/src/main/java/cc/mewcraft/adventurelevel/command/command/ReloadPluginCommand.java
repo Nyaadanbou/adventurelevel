@@ -22,10 +22,8 @@ public class ReloadPluginCommand extends AbstractCommand {
                 .literal("reload")
                 .permission("adventurelevel.command.admin")
                 .handler(context -> {
-                    plugin.onDisable();
-                    plugin.onEnable();
-
-                    plugin.getLang().of("msg_config_reloaded").resolver(
+                    plugin.reloadConfigPart();
+                    plugin.translations().of("msg_config_reloaded").resolver(
                             Placeholder.unparsed("plugin", plugin.getName()),
                             Placeholder.unparsed("version", plugin.getPluginMeta().getVersion()),
                             Placeholder.unparsed("author", plugin.getPluginMeta().getAuthors().getFirst())

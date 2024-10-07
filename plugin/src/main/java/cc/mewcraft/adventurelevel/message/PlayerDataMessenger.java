@@ -73,7 +73,7 @@ public class PlayerDataMessenger implements Terminable {
     public void registerListeners() {
         channel.newAgent((agent, message) -> {
             if (Objects.equals(ServerInfo.SERVER_ID.get(), message.server())) {
-                return; // Ignore packets sent from the same server
+                return; // ignore packets sent from the same server
             }
 
             UUID uuid = message.uuid();
@@ -84,9 +84,8 @@ public class PlayerDataMessenger implements Terminable {
             if (playerDataManager.asMap().containsKey(uuid)) {
                 PlayerData data = playerDataManager.asMap().get(uuid);
                 if (data.complete()) {
-                    // Here we only need to update 'complete' entry.
-
-                    // Incomplete means that the entry is newly created (or re-added),
+                    // Here we only need to update *complete* entry,
+                    // while *incomplete* means that the entry is newly created (or re-added),
                     // in which case the CacheLoader will handle the data loading.
 
                     PlayerDataUpdater.update(data, message);
@@ -138,6 +137,9 @@ public class PlayerDataMessenger implements Terminable {
     }
 
     @Override public void close() {
+        // clean up agent
         agent.close();
+        // clean up cache
+        messageStore.cleanUp();
     }
 }

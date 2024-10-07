@@ -15,6 +15,7 @@ import cc.mewcraft.adventurelevel.util.Translations;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
@@ -22,12 +23,7 @@ import org.slf4j.Logger;
 public class AdventureLevelPlugin extends ExtendedJavaPlugin implements AdventureLevel {
     private static AdventureLevelPlugin INSTANCE;
 
-    private Logger logger;
     private Injector injector;
-    private DataStorage dataStorage;
-    private PlayerDataMessenger playerDataMessenger;
-    private PlayerDataManager playerDataManager;
-    private Translations translations;
 
     public static @NonNull AdventureLevelPlugin getInstance() {
         return INSTANCE;
@@ -36,37 +32,35 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
     @Override protected void enable() {
         INSTANCE = this;
 
-        logger = getSLF4JLogger();
         injector = Guice.createInjector(new AbstractModule() {
             @Override protected void configure() {
                 bind(AdventureLevelPlugin.class).toInstance(AdventureLevelPlugin.this);
                 bind(Logger.class).toInstance(getSLF4JLogger());
-                bind(DataStorage.class).to(SQLDataStorage.class);
-                bind(PlayerDataManager.class).to(PlayerDataManagerImpl.class);
+
+                bind(DataStorage.class).to(SQLDataStorage.class).in(Scopes.SINGLETON);
+                bind(PlayerDataManager.class).to(PlayerDataManagerImpl.class).in(Scopes.SINGLETON);
+                bind(Translations.class).toProvider(() ->
+                        new Translations(AdventureLevelPlugin.this, "lang")
+                ).in(Scopes.SINGLETON);
             }
         });
 
         saveDefaultConfig();
         saveResourceRecursively("calc");
 
-        translations = new Translations(this, "lang");
-
-        dataStorage = bind(injector.getInstance(DataStorage.class));
-        dataStorage.init();
-
-        playerDataManager = bind(injector.getInstance(PlayerDataManager.class));
-        playerDataMessenger = bind(injector.getInstance(PlayerDataMessenger.class));
-        playerDataMessenger.registerListeners();
+        bind(injector.getInstance(DataStorage.class)).init();
+        bind(injector.getInstance(PlayerDataManager.class));
+        bind(injector.getInstance(PlayerDataMessenger.class)).registerListeners();
 
         // Register listeners
-        registerTerminableListener(injector.getInstance(PickupExpListener.class)).bindWith(this);
-        registerTerminableListener(injector.getInstance(UserdataListener.class)).bindWith(this);
+        bind(registerTerminableListener(injector.getInstance(PickupExpListener.class)));
+        bind(registerTerminableListener(injector.getInstance(UserdataListener.class)));
 
         // Register placeholders
         if (isPluginPresent("MiniPlaceholders"))
-            injector.getInstance(MiniPlaceholderExpansion.class).register().bindWith(this);
+            bind(injector.getInstance(MiniPlaceholderExpansion.class).register());
         if (isPluginPresent("PlaceholderAPI"))
-            injector.getInstance(PAPIPlaceholderExpansion.class).register().bindWith(this);
+            bind(injector.getInstance(PAPIPlaceholderExpansion.class).register());
 
         // Register LuckPerms contexts
         if (isPluginPresent("LuckPerms"))
@@ -79,19 +73,25 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
         AdventureLevelProvider.register(this);
     }
 
-    public @NonNull DataStorage getDataStorage() {
-        return dataStorage;
+    /**
+     * 重载配置文件, 仅有部分数据支持重载.
+     */
+    public void reloadConfigPart() {
+        reloadConfig();
+        translations().reload();
+        playerDataManager().cleanup();
     }
 
-    public @NonNull PlayerDataManager getPlayerDataManager() {
-        return playerDataManager;
+    @Override
+    public @NonNull PlayerDataManager playerDataManager() {
+        return injector.getInstance(PlayerDataManager.class);
     }
 
-    public @NonNull PlayerDataMessenger getPlayerDataMessenger() {
-        return playerDataMessenger;
+    public @NonNull PlayerDataMessenger playerDataMessenger() {
+        return injector.getInstance(PlayerDataMessenger.class);
     }
 
-    public @NonNull Translations getLang() {
-        return translations;
+    public @NonNull Translations translations() {
+        return injector.getInstance(Translations.class);
     }
 }

@@ -52,10 +52,10 @@ public class ManageExpCommand extends AbstractCommand {
 
                     if (useLevel) {
                         category.mapping.apply(userdata).setLevel(amount);
-                        plugin.getLang().of("msg_player_level_is_set").resolver(resolvers).send(sender);
+                        plugin.translations().of("msg_player_level_is_set").resolver(resolvers).send(sender);
                     } else {
                         category.mapping.apply(userdata).setExperience(amount);
-                        plugin.getLang().of("msg_player_xp_is_set").resolver(resolvers).send(sender);
+                        plugin.translations().of("msg_player_xp_is_set").resolver(resolvers).send(sender);
                     }
                 })
                 .build();
@@ -83,10 +83,10 @@ public class ManageExpCommand extends AbstractCommand {
 
                     if (useLevel) {
                         category.mapping.apply(userdata).addLevel(amount);
-                        plugin.getLang().of("msg_player_level_is_added").resolver(resolvers).send(sender);
+                        plugin.translations().of("msg_player_level_is_added").resolver(resolvers).send(sender);
                     } else {
                         category.mapping.apply(userdata).addExperience(amount);
-                        plugin.getLang().of("msg_player_xp_is_added").resolver(resolvers).send(sender);
+                        plugin.translations().of("msg_player_xp_is_added").resolver(resolvers).send(sender);
                     }
                 })
                 .build();

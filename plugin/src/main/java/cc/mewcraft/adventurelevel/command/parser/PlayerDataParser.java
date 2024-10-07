@@ -46,18 +46,18 @@ public class PlayerDataParser implements ArgumentParser<CommandSender, PlayerDat
         @Nullable OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayerIfCached(input);
         if (offlinePlayer == null) {
             return ArgumentParseResult.failure(
-                    new IllegalArgumentException(AdventureLevelPlugin.getInstance().getLang().of("msg_player_is_null").locale(sender).plain())
+                    new IllegalArgumentException(AdventureLevelPlugin.getInstance().translations().of("msg_player_is_null").locale(sender).plain())
             );
         }
 
-        PlayerData playerData = AdventureLevelPlugin.getInstance().getPlayerDataManager().load(offlinePlayer);
+        PlayerData playerData = AdventureLevelPlugin.getInstance().playerDataManager().load(offlinePlayer);
         if (!playerData.equals(PlayerData.DUMMY)) {
             commandInput.readString();
             return ArgumentParseResult.success(playerData);
         }
 
         return ArgumentParseResult.failure(
-                new IllegalArgumentException(AdventureLevelPlugin.getInstance().getLang().of("msg_player_is_null").plain())
+                new IllegalArgumentException(AdventureLevelPlugin.getInstance().translations().of("msg_player_is_null").plain())
         );
     }
 

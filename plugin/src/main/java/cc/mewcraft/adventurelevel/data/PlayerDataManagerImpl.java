@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.promise.Promise;
+import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 
@@ -32,10 +33,14 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
 
     // 我们通过监听 PlayerQuitEvent 来移除无用的数据,
     // 不使用 expireAfterAccess / expireAfterWrite.
-    private final LoadingCache<UUID, PlayerData> loadingCache = CacheBuilder.newBuilder()
+    private final LoadingCache<UUID, PlayerData> cache = CacheBuilder.newBuilder()
             .removalListener(new PlayerDataRemovalListener())
             .build(new PlayerDataLoader());
 
+    // 记录所有运行中的异步任务
+    private final CompositeTerminable tasks = CompositeTerminable.create();
+
+    // 延迟多久后从消息中获取数据
     private final long networkLatencyMilliseconds;
 
     private class PlayerDataLoader extends CacheLoader<UUID, PlayerData> {
@@ -43,6 +48,7 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
                 final @NonNull UUID key
         ) {
             RealPlayerData data = new RealPlayerData(plugin, key);
+            logger.info("Created userdata in cache: {}", data.toSimpleString());
             Schedulers.builder()
                     .async()
                     .after(networkLatencyMilliseconds, TimeUnit.MILLISECONDS)
@@ -63,9 +69,9 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
                             }
                             PlayerDataUpdater.update(data, fromFile).markAsComplete();
                         }
-                        logger.info("Fully loaded userdata into cache: {}", data.toSimpleString());
-                    });
-            logger.info("Created empty userdata in cache: {}", data.toSimpleString());
+                        logger.info("Loaded userdata into cache: {}", data.toSimpleString());
+                    })
+                    .bindWith(tasks);
             return data;
         }
     }
@@ -95,11 +101,12 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
     }
 
     @Override public @NonNull Map<UUID, PlayerData> asMap() {
-        return loadingCache.asMap();
+        return cache.asMap();
     }
 
     @Override public @NonNull PlayerData load(final @NonNull UUID uuid) {
-        return loadingCache.getUnchecked(uuid);
+
+        return cache.getUnchecked(uuid);
     }
 
     @Override public @NonNull Promise<PlayerData> save(final @NonNull PlayerData playerData) {
@@ -112,23 +119,34 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
     }
 
     @Override public @NonNull UUID unload(final @NonNull UUID uuid) {
-        loadingCache.invalidate(uuid);
+        cache.invalidate(uuid);
         return uuid;
     }
 
     @Override public void refresh(final @NonNull UUID uuid) {
-        loadingCache.refresh(uuid);
+        cache.refresh(uuid);
     }
 
-    @Override public void close() {
+    @Override public void cleanup() {
         // We need to save all ONLINE players data before shutdown.
         // Doing so we can safely and completely reload the plugin.
-        loadingCache.asMap().values()
+        cache.asMap().values()
                 .stream()
                 .filter(Predicates.and(
                         PlayerData::complete,
                         PlayerData::isOnline
                 ))
                 .forEach(storage::save);
+
+        // Invalidate all cached data
+        cache.invalidateAll();
+    }
+
+    @Override public void close() throws Exception {
+        // Clean up cached data
+        cleanup();
+
+        // Shutdown all async tasks of loading player data
+        tasks.close();
     }
 }

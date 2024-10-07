@@ -1,6 +1,7 @@
 package cc.mewcraft.adventurelevel.listener;
 
-import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
+import cc.mewcraft.adventurelevel.data.PlayerDataManager;
+import cc.mewcraft.adventurelevel.message.PlayerDataMessenger;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.bukkit.event.EventHandler;
@@ -13,21 +14,24 @@ import org.slf4j.Logger;
 @Singleton
 public class UserdataListener implements Listener {
 
-    private final AdventureLevelPlugin plugin;
     private final Logger logger;
+    private final PlayerDataManager playerDataManager;
+    private final PlayerDataMessenger playerDataMessenger;
 
     @Inject
     public UserdataListener(
-            final AdventureLevelPlugin plugin,
-            final Logger logger
+            final Logger logger,
+            final PlayerDataManager playerDataManager,
+            final PlayerDataMessenger playerDataMessenger
     ) {
-        this.plugin = plugin;
         this.logger = logger;
+        this.playerDataManager = playerDataManager;
+        this.playerDataMessenger = playerDataMessenger;
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onLogin(PlayerJoinEvent event) {
-        plugin.getPlayerDataManager().load(event.getPlayer());
+        playerDataManager.load(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.LOWEST) // use the lowest priority, so we handle it as soon as possible
@@ -52,8 +56,6 @@ public class UserdataListener implements Listener {
         // may also help reduce the potential database traffic.
 
         final var player = event.getPlayer();
-        final var playerDataManager = plugin.getPlayerDataManager();
-        final var playerDataMessenger = plugin.getPlayerDataMessenger();
 
         final var data = playerDataManager.load(player);
         if (data.complete()) {

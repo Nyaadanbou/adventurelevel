@@ -8,6 +8,7 @@ import org.incendo.cloud.Command;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.paper.LegacyPaperCommandManager;
+import org.incendo.cloud.setting.ManagerSetting;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class CommandManager {
         this.plugin = plugin;
         this.manager = new LegacyPaperCommandManager<>(plugin, ExecutionCoordinator.simpleCoordinator(), SenderMapper.identity());
         this.manager.registerLegacyPaperBrigadier();
+        this.manager.settings().set(ManagerSetting.OVERRIDE_EXISTING_COMMANDS, true);
 
         this.registerCommands();
     }
