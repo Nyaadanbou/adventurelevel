@@ -28,7 +28,7 @@ public class MainLevel extends AbstractLevel {
     }
 
     @Override public void handleEvent(final PlayerPickupExperienceEvent event) {
-        ExperienceOrb orb = event.getExperienceOrb();
+        final ExperienceOrb orb = event.getExperienceOrb();
         final double amount = orb.getExperience();
         final double modifier = experienceModifiers.get(orb.getSpawnReason());
         int result = BigDecimal
