@@ -1,7 +1,4 @@
-########################################
-# 数据库设置
-########################################
-
+# MySQL 设置
 database:
   credentials:
     host: localhost
@@ -18,19 +15,20 @@ database:
     connection_timeout: 5000
   table_names:
     userdata: adventurelevel_userdata
+
+# Redis 设置
 redis:
   credentials:
     host: localhost
     port: 6379
     password: ''
+
+# 其他设置, 请勿修改
 synchronization:
   network_latency_milliseconds: 500
 
-########################################
 # 主等级设置
-########################################
-
-main_level:
+primary_level:
   # experience_modifiers 每个途径获取的经验值的调整系数
   # 在把经验值添加到主等级时，将根据获取途径乘以下面的系数
   # https://jd.papermc.io/paper/1.19/org/bukkit/entity/ExperienceOrb.SpawnReason.html
@@ -56,23 +54,23 @@ main_level:
   #  [a,b]     {x | a <= x <= b}
   #  (a,b]     {x | a < x <= b}
   #  [a,b)     {x | a <= x < b}
-  #  (a,+∞)    {x | x > a}
-  #  [a,+∞)    {x | x >= a}
-  #  (-∞,b)    {x | x < b}
-  #  (-∞,b]    {x | x <= b}
-  #  (-∞,+∞)   {x}
-  # level_to_exp_formula 已知等级 x，求经验值
+  #  (a,)      {x | x > a}
+  #  [a,)      {x | x >= a}
+  #  (,b)      {x | x < b}
+  #  (,b]      {x | x <= b}
+  #  (,)       {x}
+  # level_to_exp_formula: 已知等级 x，求经验值
   level_to_exp_formula:
     "[0,16]": x ^ 2 + 6 * x
     "[17,31]": 2.5 * x ^ 2 - 40.5 * x + 360
-    "[32,+∞)": 4.5 * x ^ 2 - 162.5 * x + 2220
-  # exp_to_level_formula 已知经验值 x，求等级
+    "[32,)": 4.5 * x ^ 2 - 162.5 * x + 2220
+  # exp_to_level_formula: 已知经验值 x，求等级
   exp_to_level_formula:
     "[0,352]": SQRT( x + 9 ) - 3
     "[353,1507]": 81 / 10 + SQRT( 2 / 5 * ( x - 7839 / 40 ) )
-    "[1508,+∞)": 325 / 18 + SQRT( 2 / 9 * ( x - 54215 / 72 ) )
-  # next_level_exp 已知等级 x，求升级到下一等级所需的经验值
-  next_level_exp:
+    "[1508,)": 325 / 18 + SQRT( 2 / 9 * ( x - 54215 / 72 ) )
+  # exp_until_next_level: 已知等级 x，求升级到下一等级所需的经验值
+  exp_until_next_level:
     "[0,15]": 2 * x + 7
     "[16,30]": 5 * x - 38
-    "[31,+∞)": 9 * x - 158
+    "[31,)": 9 * x - 158

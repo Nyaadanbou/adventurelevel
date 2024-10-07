@@ -1,81 +1,77 @@
 package cc.mewcraft.adventurelevel.data;
 
 import cc.mewcraft.adventurelevel.file.DataStorage;
-import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.message.PlayerDataMessenger;
 import cc.mewcraft.adventurelevel.message.packet.PlayerDataPacket;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
-import cc.mewcraft.adventurelevel.util.PlayerUtils;
-import me.lucko.helper.Schedulers;
-import me.lucko.helper.promise.Promise;
-import me.lucko.helper.scheduler.HelperExecutors;
-import me.lucko.helper.utils.Players;
-
+import com.google.common.base.Predicates;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalListeners;
 import com.google.common.cache.RemovalNotification;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import me.lucko.helper.Schedulers;
+import me.lucko.helper.promise.Promise;
+import me.lucko.helper.terminable.composite.CompositeTerminable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.slf4j.Logger;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.jetbrains.annotations.NotNull;
-
 @Singleton
 public class PlayerDataManagerImpl implements PlayerDataManager {
     private final AdventureLevelPlugin plugin;
+    private final Logger logger;
+
     private final DataStorage storage;
     private final PlayerDataMessenger messenger;
-    private final LoadingCache<UUID, PlayerData> loadingCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.of(5, ChronoUnit.MINUTES))
-            .removalListener(RemovalListeners.asynchronous(new PlayerDataRemovalListener(), HelperExecutors.asyncHelper()))
+
+    // 我们通过监听 PlayerQuitEvent 来移除无用的数据,
+    // 不使用 expireAfterAccess / expireAfterWrite.
+    private final LoadingCache<UUID, PlayerData> cache = CacheBuilder.newBuilder()
+            .removalListener(new PlayerDataRemovalListener())
             .build(new PlayerDataLoader());
 
-    // --- Config settings ---
+    // 记录所有运行中的异步任务
+    private final CompositeTerminable tasks = CompositeTerminable.create();
+
+    // 延迟多久后从消息中获取数据
     private final long networkLatencyMilliseconds;
 
     private class PlayerDataLoader extends CacheLoader<UUID, PlayerData> {
-        @Override public @NotNull PlayerData load(
-                final @NotNull UUID key
+        @Override public @NonNull PlayerData load(
+                final @NonNull UUID key
         ) {
             RealPlayerData data = new RealPlayerData(plugin, key);
-
+            logger.info("Created userdata in cache: {}", data.toSimpleString());
             Schedulers.builder()
                     .async()
                     .after(networkLatencyMilliseconds, TimeUnit.MILLISECONDS)
                     .run(() -> {
-
                         if (data.complete()) {
                             return; // It is already complete - do nothing
                         }
-
                         // Get data from message store first
                         PlayerDataPacket message = messenger.get(key);
                         if (message != null) {
-                            plugin.getSLF4JLogger().info("Fully loaded userdata from message store: name={}, mainXp={}", PlayerUtils.getNameFromUUID(key), message.mainXp());
                             PlayerDataUpdater.update(data, message).markAsComplete();
-                            return;
+                        } else {
+                            // The message store does not have the data,
+                            // so load the data from file (or database).
+                            PlayerData fromFile = storage.load(key);
+                            if (fromFile.equals(PlayerData.DUMMY)) {
+                                fromFile = storage.create(key); // Not existing in disk - create one
+                            }
+                            PlayerDataUpdater.update(data, fromFile).markAsComplete();
                         }
-
-                        // The message store does not have the data,
-                        // so load the data from file and return it.
-                        PlayerData fromFile = storage.load(key);
-                        if (fromFile.equals(PlayerData.DUMMY)) {
-                            fromFile = storage.create(key); // Not existing in disk - create one
-                        }
-                        PlayerDataUpdater.update(data, fromFile).markAsComplete();
-
-                    });
-
+                        logger.info("Loaded userdata into cache: {}", data.toSimpleString());
+                    })
+                    .bindWith(tasks);
             return data;
         }
     }
@@ -85,39 +81,35 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
      */
     private class PlayerDataRemovalListener implements RemovalListener<UUID, PlayerData> {
         @Override public void onRemoval(final RemovalNotification<UUID, PlayerData> notification) {
-            PlayerData data = notification.getValue();
-            Objects.requireNonNull(data, "data");
-
-            // We need to save it into file in case the entry is evicted and then lost.
-            storage.save(data);
-
-            plugin.getSLF4JLogger().info("Saved and unloaded userdata: name={}, mainXp={}", PlayerUtils.getNameFromUUID(data.getUuid()), data.getLevel(LevelCategory.MAIN).getExperience());
+            PlayerData data = Objects.requireNonNull(notification.getValue(), "data");
+            logger.info("Unloaded userdata from cache: {}", data.toSimpleString());
         }
     }
 
     @Inject
     public PlayerDataManagerImpl(
             final AdventureLevelPlugin plugin,
+            final Logger logger,
             final DataStorage storage,
             final PlayerDataMessenger messenger
     ) {
         this.plugin = plugin;
+        this.logger = logger;
         this.storage = storage;
         this.messenger = messenger;
-
-        // Load config settings
         this.networkLatencyMilliseconds = Math.max(0, plugin.getConfig().getLong("synchronization.network_latency_milliseconds"));
     }
 
-    @Override public @NotNull Map<UUID, PlayerData> asMap() {
-        return loadingCache.asMap();
+    @Override public @NonNull Map<UUID, PlayerData> asMap() {
+        return cache.asMap();
     }
 
-    @Override public @NotNull PlayerData load(final @NotNull UUID uuid) {
-        return loadingCache.getUnchecked(uuid);
+    @Override public @NonNull PlayerData load(final @NonNull UUID uuid) {
+
+        return cache.getUnchecked(uuid);
     }
 
-    @Override public @NotNull Promise<PlayerData> save(final @NotNull PlayerData playerData) {
+    @Override public @NonNull Promise<PlayerData> save(final @NonNull PlayerData playerData) {
         return !playerData.complete()
                 ? Promise.supplyingExceptionallyAsync(() -> playerData)
                 : Promise.supplyingAsync(() -> {
@@ -126,20 +118,35 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
                 });
     }
 
-    @Override public @NotNull UUID unload(final @NotNull UUID uuid) {
-        loadingCache.invalidate(uuid);
+    @Override public @NonNull UUID unload(final @NonNull UUID uuid) {
+        cache.invalidate(uuid);
         return uuid;
     }
 
-    @Override public void refresh(final @NotNull UUID uuid) {
-        loadingCache.refresh(uuid);
+    @Override public void refresh(final @NonNull UUID uuid) {
+        cache.refresh(uuid);
     }
 
-    @Override public void close() {
+    @Override public void cleanup() {
         // We need to save all ONLINE players data before shutdown.
         // Doing so we can safely and completely reload the plugin.
-        for (final PlayerData value : loadingCache.asMap().values()) {
-            if (Players.get(value.getUuid()).isPresent()) storage.save(value);
-        }
+        cache.asMap().values()
+                .stream()
+                .filter(Predicates.and(
+                        PlayerData::complete,
+                        PlayerData::isOnline
+                ))
+                .forEach(storage::save);
+
+        // Invalidate all cached data
+        cache.invalidateAll();
+    }
+
+    @Override public void close() throws Exception {
+        // Clean up cached data
+        cleanup();
+
+        // Shutdown all async tasks of loading player data
+        tasks.close();
     }
 }

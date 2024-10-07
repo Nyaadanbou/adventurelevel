@@ -3,34 +3,38 @@ package cc.mewcraft.adventurelevel.data;
 import me.lucko.helper.promise.Promise;
 import me.lucko.helper.terminable.Terminable;
 import org.bukkit.OfflinePlayer;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Map;
 import java.util.UUID;
 
-import org.jetbrains.annotations.NotNull;
-
 public interface PlayerDataManager extends Terminable {
-    @NotNull PlayerData load(@NotNull UUID uuid);
+    @NonNull PlayerData load(@NonNull UUID uuid);
 
-    default @NotNull PlayerData load(@NotNull OfflinePlayer player) {
+    default @NonNull PlayerData load(@NonNull OfflinePlayer player) {
         return load(player.getUniqueId());
     }
 
-    @NotNull Promise<PlayerData> save(@NotNull PlayerData playerData);
+    @NonNull Promise<PlayerData> save(@NonNull PlayerData playerData);
 
-    default @NotNull Promise<PlayerData> save(@NotNull OfflinePlayer player) {
+    default @NonNull Promise<PlayerData> save(@NonNull OfflinePlayer player) {
         return save(load(player.getUniqueId()));
     }
 
-    @NotNull UUID unload(@NotNull UUID uuid);
+    @NonNull UUID unload(@NonNull UUID uuid);
 
-    default @NotNull UUID unload(@NotNull OfflinePlayer player) {
+    default @NonNull UUID unload(@NonNull OfflinePlayer player) {
         return unload(player.getUniqueId());
     }
 
-    void refresh(@NotNull UUID uuid);
+    void refresh(@NonNull UUID uuid);
 
-    @NotNull Map<UUID, PlayerData> asMap();
+    @NonNull Map<UUID, PlayerData> asMap();
+
+    /**
+     * Cleans up all cached player data. This will force the data to be reloaded from data storage.
+     */
+    void cleanup();
 
     /**
      * Implementation Requirement: This should save all cached player data to file when being called.

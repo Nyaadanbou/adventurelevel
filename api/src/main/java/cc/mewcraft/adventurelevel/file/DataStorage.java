@@ -2,10 +2,9 @@ package cc.mewcraft.adventurelevel.file;
 
 import cc.mewcraft.adventurelevel.data.PlayerData;
 import me.lucko.helper.terminable.Terminable;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.UUID;
-
-import org.jetbrains.annotations.NotNull;
 
 /**
  * This class provides methods to create/load/save data to/from datasource.
@@ -21,7 +20,7 @@ public interface DataStorage extends Terminable {
      * @param uuid the uuid of PlayerData
      * @return a PlayerData wrapped by Promise
      */
-    @NotNull PlayerData create(UUID uuid);
+    @NonNull PlayerData create(UUID uuid);
 
     /**
      * Loads the specific PlayerData synchronously.
@@ -29,7 +28,7 @@ public interface DataStorage extends Terminable {
      * @param uuid the uuid of PlayerData
      * @return a PlayerData wrapped by Promise
      */
-    @NotNull PlayerData load(UUID uuid);
+    @NonNull PlayerData load(UUID uuid);
 
     /**
      * Saves the given PlayerData synchronously.

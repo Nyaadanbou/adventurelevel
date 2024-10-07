@@ -6,16 +6,17 @@ import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.parser.ParseException;
-
 import com.google.common.collect.RangeMap;
+import net.kyori.examination.ExaminableProperty;
+import net.kyori.examination.string.StringExaminer;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import org.jetbrains.annotations.NotNull;
-
-@SuppressWarnings("UnstableApiUsage")
 public abstract class AbstractLevel implements Level {
 
     protected final AdventureLevelPlugin plugin;
@@ -27,28 +28,28 @@ public abstract class AbstractLevel implements Level {
     /**
      * @see #calculateTotalExperience(int)
      */
-    protected final RangeMap<Integer, Expression> levelToExpFormulae;
+    protected final RangeMap<Integer, Expression> convertLevelToExpFormula;
     /**
      * @see #calculateTotalLevel(int)
      */
-    protected final RangeMap<Integer, Expression> expToLevelFormulae;
+    protected final RangeMap<Integer, Expression> convertExpToLevelFormula;
     /**
      * @see #calculateNeededExperience(int)
      */
-    protected final RangeMap<Integer, Expression> nextLevelFormulae;
+    protected final RangeMap<Integer, Expression> expUntilNextLevelFormula;
 
     public AbstractLevel(
             final AdventureLevelPlugin plugin,
             final int maxLevel,
-            final RangeMap<Integer, Expression> levelToExpFormula,
-            final RangeMap<Integer, Expression> expToLevelFormula,
-            final RangeMap<Integer, Expression> nextLevelFormula
+            final RangeMap<Integer, Expression> convertLevelToExpFormula,
+            final RangeMap<Integer, Expression> convertExpToLevelFormula,
+            final RangeMap<Integer, Expression> expUntilNextLevelFormula
     ) {
         this.plugin = plugin;
         this.maxLevel = maxLevel;
-        this.levelToExpFormulae = levelToExpFormula;
-        this.expToLevelFormulae = expToLevelFormula;
-        this.nextLevelFormulae = nextLevelFormula;
+        this.convertLevelToExpFormula = convertLevelToExpFormula;
+        this.convertExpToLevelFormula = convertExpToLevelFormula;
+        this.expUntilNextLevelFormula = expUntilNextLevelFormula;
         this.additiveModifiers = new HashMap<>();
         this.multiplicativeModifiers = new HashMap<>();
     }
@@ -59,7 +60,7 @@ public abstract class AbstractLevel implements Level {
 
     @Override public int calculateTotalExperience(final int level) {
         try {
-            return levelToExpFormulae
+            return convertLevelToExpFormula
                     .get(level)
                     .with("x", level)
                     .evaluate()
@@ -72,7 +73,7 @@ public abstract class AbstractLevel implements Level {
 
     @Override public int calculateNeededExperience(final int currentLevel) {
         try {
-            return nextLevelFormulae
+            return expUntilNextLevelFormula
                     .get(currentLevel)
                     .with("x", currentLevel)
                     .evaluate()
@@ -85,7 +86,7 @@ public abstract class AbstractLevel implements Level {
 
     @Override public double calculateTotalLevel(final int totalExp) {
         try {
-            return expToLevelFormulae
+            return convertExpToLevelFormula
                     .get(totalExp)
                     .with("x", totalExp)
                     .evaluate()
@@ -125,11 +126,11 @@ public abstract class AbstractLevel implements Level {
             multiplicativeMod *= mod.getValue();
         }
 
-        totalExperience += value * Math.max(0, 1 + additiveMod) * Math.max(0, multiplicativeMod);
+        totalExperience += (int) (value * Math.max(0, 1 + additiveMod) * Math.max(0, multiplicativeMod));
         return oldValue;
     }
 
-    @Override public @NotNull Map<String, ExperienceModifier> getExperienceModifiers(ExperienceModifier.Type type) {
+    @Override public @NonNull Map<String, ExperienceModifier> getExperienceModifiers(ExperienceModifier.Type type) {
         return type == ExperienceModifier.Type.ADDITIVE ? additiveModifiers : multiplicativeModifiers;
     }
 
@@ -166,5 +167,15 @@ public abstract class AbstractLevel implements Level {
 
     @Override public int getMaxLevel() {
         return maxLevel;
+    }
+
+    @Override public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
+        return Stream.of(
+                ExaminableProperty.of("totalExperience", this.totalExperience)
+        );
+    }
+
+    @Override public String toString() {
+        return StringExaminer.simpleEscaping().examine(this);
     }
 }

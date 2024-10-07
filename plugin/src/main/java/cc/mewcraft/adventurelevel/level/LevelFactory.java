@@ -5,25 +5,24 @@ import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.File;
 import java.util.Objects;
 
-import org.jetbrains.annotations.NotNull;
-
 public final class LevelFactory {
-    public static @NotNull Level newLevel(@NotNull LevelCategory category) {
+    public static @NonNull Level newLevel(@NonNull LevelCategory category) {
         AdventureLevelPlugin plugin = AdventureLevelPlugin.getInstance();
         ConfigurationSection config;
         return switch (category) {
 
-            // Create Main Level
-            case MAIN: {
-                config = Objects.requireNonNull(plugin.getConfig().getConfigurationSection("main_level"));
+            // Create Primary Level
+            case PRIMARY: {
+                config = Objects.requireNonNull(plugin.getConfig().getConfigurationSection("primary_level"));
                 yield LevelBuilder.builder(plugin, config).build(category);
             }
 
-            // Create Sub Levels
+            // Create Categorical Levels
             case PLAYER_DEATH:
             case ENTITY_DEATH:
             case FURNACE:
@@ -34,7 +33,7 @@ public final class LevelFactory {
             case EXP_BOTTLE:
             case GRINDSTONE: {
                 File file = plugin.getDataFolder().toPath()
-                        .resolve("categories")
+                        .resolve("calc")
                         .resolve(category.name().toLowerCase() + ".yml")
                         .toFile();
                 config = YamlConfiguration.loadConfiguration(file);

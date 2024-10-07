@@ -2,10 +2,10 @@ package cc.mewcraft.adventurelevel.level.category;
 
 import cc.mewcraft.adventurelevel.level.modifier.ExperienceModifier;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
+import net.kyori.examination.Examinable;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Map;
-
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The number of levels is just a final result, which is derived from the backed experience value.
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
  * derived from the {@link #calculateTotalLevel(int)}. Implementation may cache the number of levels if the calculation
  * is expensive.
  */
-public interface Level {
+public interface Level extends Examinable {
     void handleEvent(PlayerPickupExperienceEvent event);
 
     /**
@@ -30,7 +30,7 @@ public interface Level {
     int calculateNeededExperience(int currentLevel);
 
     /**
-     * Side Note: It's an inverse of {@link #calculateTotalExperience(int)}.
+     * Note: it's an inverse of {@link #calculateTotalExperience(int)}.
      *
      * @param totalExp the total experience value
      * @return the number of levels derived from the given total experience value. The returned number of levels is a
@@ -59,7 +59,7 @@ public interface Level {
     /**
      * @return the modifier applied when some experience value is obtained
      */
-    @NotNull Map<String, ExperienceModifier> getExperienceModifiers(ExperienceModifier.Type type);
+    @NonNull Map<String, ExperienceModifier> getExperienceModifiers(ExperienceModifier.Type type);
 
     /**
      * @param key      the key of the experience modifier

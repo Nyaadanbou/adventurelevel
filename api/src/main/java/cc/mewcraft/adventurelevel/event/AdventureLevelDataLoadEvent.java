@@ -2,19 +2,20 @@ package cc.mewcraft.adventurelevel.event;
 
 import cc.mewcraft.adventurelevel.data.PlayerData;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.player.PlayerEvent;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import org.jetbrains.annotations.NotNull;
-
-public class AdventurePlayerDataLoadEvent extends PlayerEvent {
+/**
+ * 当玩家的数据加载完成时触发.
+ */
+public class AdventureLevelDataLoadEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
     private final PlayerData playerData;
 
-    public AdventurePlayerDataLoadEvent(final @NotNull Player who, PlayerData playerData) {
-        super(who, !Bukkit.isPrimaryThread());
+    public AdventureLevelDataLoadEvent(PlayerData playerData) {
+        super(!Bukkit.isPrimaryThread());
         this.playerData = playerData;
     }
 
@@ -22,11 +23,11 @@ public class AdventurePlayerDataLoadEvent extends PlayerEvent {
         return playerData;
     }
 
-    public static @NotNull HandlerList getHandlerList() {
+    @Override public @NonNull HandlerList getHandlers() {
         return HANDLERS;
     }
 
-    @Override public @NotNull HandlerList getHandlers() {
+    public static @NonNull HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

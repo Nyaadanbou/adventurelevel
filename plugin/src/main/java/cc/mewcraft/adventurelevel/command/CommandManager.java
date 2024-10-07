@@ -3,61 +3,43 @@ package cc.mewcraft.adventurelevel.command;
 import cc.mewcraft.adventurelevel.command.command.ManageExpCommand;
 import cc.mewcraft.adventurelevel.command.command.ReloadPluginCommand;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
-import cloud.commandframework.Command;
-import cloud.commandframework.brigadier.CloudBrigadierManager;
-import cloud.commandframework.bukkit.CloudBukkitCapabilities;
-import cloud.commandframework.execution.CommandExecutionCoordinator;
-import cloud.commandframework.minecraft.extras.AudienceProvider;
-import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler;
-import cloud.commandframework.paper.PaperCommandManager;
 import org.bukkit.command.CommandSender;
+import org.incendo.cloud.Command;
+import org.incendo.cloud.SenderMapper;
+import org.incendo.cloud.execution.ExecutionCoordinator;
+import org.incendo.cloud.paper.LegacyPaperCommandManager;
+import org.incendo.cloud.setting.ManagerSetting;
 
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
-import org.jetbrains.annotations.Nullable;
+public class CommandManager {
 
-public class CommandManager extends PaperCommandManager<CommandSender> {
+    private final AdventureLevelPlugin plugin;
+    private final LegacyPaperCommandManager<CommandSender> manager;
 
-    public CommandManager(AdventureLevelPlugin plugin) throws Exception {
-        super(
-                plugin,
-                CommandExecutionCoordinator.simpleCoordinator(), // use sync, so what we see in code is what it actually does
-                Function.identity(),
-                Function.identity()
-        );
+    public CommandManager(AdventureLevelPlugin plugin) {
+        this.plugin = plugin;
+        this.manager = new LegacyPaperCommandManager<>(plugin, ExecutionCoordinator.simpleCoordinator(), SenderMapper.identity());
+        this.manager.registerLegacyPaperBrigadier();
+        this.manager.settings().set(ManagerSetting.OVERRIDE_EXISTING_COMMANDS, true);
 
-        // ---- Register Brigadier ----
-        if (hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
-            registerBrigadier();
-            final @Nullable CloudBrigadierManager<CommandSender, ?> brigManager = brigadierManager();
-            if (brigManager != null) {
-                brigManager.setNativeNumberSuggestions(false);
-            }
-            plugin.getSLF4JLogger().info("Successfully registered Mojang Brigadier support for commands");
-        }
+        this.registerCommands();
+    }
 
-        // ---- Register Asynchronous Completion Listener ----
-        if (hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
-            registerAsynchronousCompletions();
-            plugin.getSLF4JLogger().info("Successfully registered asynchronous command completion listener");
-        }
-
-        // ---- Change default exception messages ----
-        new MinecraftExceptionHandler<CommandSender>()
-                .withDefaultHandlers()
-                .apply(this, sender -> AudienceProvider.nativeAudience().apply(sender));
-
-        // ---- Register all commands ----
-        Stream.of(
-                new ReloadPluginCommand(plugin, this),
-                new ManageExpCommand(plugin, this)
-        ).forEach(AbstractCommand::register);
+    public LegacyPaperCommandManager<CommandSender> get() {
+        return manager;
     }
 
     public void register(final List<Command<CommandSender>> commands) {
-        commands.forEach(this::command);
+        for (final Command<CommandSender> command : commands) {
+            manager.command(command);
+        }
     }
 
+    public void registerCommands() {
+        List.of(
+                new ManageExpCommand(plugin, this),
+                new ReloadPluginCommand(plugin, this)
+        ).forEach(AbstractCommand::register);
+    }
 }

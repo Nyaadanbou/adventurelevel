@@ -1,13 +1,29 @@
 plugins {
-    id("cc.mewcraft.publishing-conventions")
+    id("nyaadanbou-conventions.repositories")
+    id("adventurelevel-conventions")
+    `maven-publish`
 }
 
-version = "1.1.0"
+version = "1.4.0"
 
 dependencies {
-    // server
-    compileOnly(libs.server.paper)
+    compileOnly(local.guice)
+    compileOnly(local.paper)
+    compileOnly(local.helper)
+}
 
-    // helper
-    compileOnly(libs.helper)
+publishing {
+    repositories {
+        maven("https://repo.mewcraft.cc/private") {
+            credentials {
+                username = providers.gradleProperty("nyaadanbou.mavenUsername").orNull
+                password = providers.gradleProperty("nyaadanbou.mavenPassword").orNull
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
 }

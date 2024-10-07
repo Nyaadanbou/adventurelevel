@@ -5,15 +5,14 @@ import com.ezylang.evalex.Expression;
 
 import com.google.common.collect.RangeMap;
 
-@SuppressWarnings("UnstableApiUsage")
 public class BlockBreakLevel extends AbstractLevel {
     public BlockBreakLevel(
             final AdventureLevelPlugin plugin,
             final int maxLevel,
-            final RangeMap<Integer, Expression> levelToExpFormulae,
-            final RangeMap<Integer, Expression> expToLevelFormulae,
-            final RangeMap<Integer, Expression> nextLevelFormulae
+            final RangeMap<Integer, Expression> convertLevelToExpFormula,
+            final RangeMap<Integer, Expression> convertExpToLevelFormula,
+            final RangeMap<Integer, Expression> expUntilNextLevelFormula
     ) {
-        super(plugin, maxLevel, levelToExpFormulae, expToLevelFormulae, nextLevelFormulae);
+        super(plugin, maxLevel, convertLevelToExpFormula, convertExpToLevelFormula, expUntilNextLevelFormula);
     }
 }

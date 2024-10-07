@@ -1,10 +1,9 @@
 package cc.mewcraft.adventurelevel.plugin;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 public final class AdventureLevelProvider {
-
     private static AdventureLevel instance = null;
 
     /**
@@ -16,7 +15,7 @@ public final class AdventureLevelProvider {
      * @return an instance of the AdventureLevel API
      * @throws IllegalStateException if the API is not loaded yet
      */
-    public static @NotNull AdventureLevel get() {
+    public static @NonNull AdventureLevel get() {
         AdventureLevel instance = AdventureLevelProvider.instance;
         if (instance == null) {
             throw new IllegalStateException("Instance is not loaded yet.");
@@ -34,9 +33,7 @@ public final class AdventureLevelProvider {
         AdventureLevelProvider.instance = null;
     }
 
-    @ApiStatus.Internal
     private AdventureLevelProvider() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
-
 }

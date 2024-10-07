@@ -2,14 +2,15 @@ package cc.mewcraft.adventurelevel.data;
 
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
+import net.kyori.examination.Examinable;
+import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
 
-import org.jetbrains.annotations.NotNull;
-
-@SuppressWarnings("UnusedReturnValue")
-public interface PlayerData {
+public interface PlayerData extends Examinable {
 
     /**
      * This DUMMY instance is only used in the cases where:
@@ -20,11 +21,38 @@ public interface PlayerData {
      */
     DummyPlayerData DUMMY = new DummyPlayerData();
 
-    @NotNull UUID getUuid();
+    /**
+     * Returns the UUID of the player.
+     */
+    @NonNull UUID getUuid();
 
-    @NotNull Level getLevel(LevelCategory category);
+    /**
+     * Returns the level of the specified category.
+     *
+     * @param category the category of the level
+     * @return the level of the specified category
+     */
+    @NonNull Level getLevel(LevelCategory category);
 
-    @NotNull Map<LevelCategory, Level> asMap();
+    /**
+     * Returns a map containing all {@link Level} instances.
+     */
+    @NonNull Map<LevelCategory, Level> asMap();
+
+    /**
+     * 方便获取 {@link #getUuid()} 对应的 {@link Player}.
+     */
+    @Nullable Player getPlayer();
+
+    /**
+     * 相当于调用 {@link Player#isOnline()}.
+     */
+    boolean isOnline();
+
+    /**
+     * 相当于调用 {@link Player#isConnected()}.
+     */
+    boolean isConnected();
 
     /**
      * Checks whether this PlayerData has been fully loaded, i.e., its states are valid and up-to-date.
@@ -34,16 +62,21 @@ public interface PlayerData {
     boolean complete();
 
     /**
-     * Marks this PlayerData as not fully loaded.
+     * Marks this data as not fully loaded.
      *
      * @return this object
      */
-    PlayerData markAsIncomplete();
+    @NonNull PlayerData markAsIncomplete();
 
     /**
-     * Marks this PlayerData as fully loaded.
+     * Marks this data as fully loaded.
      *
      * @return this object
      */
-    PlayerData markAsComplete();
+    @NonNull PlayerData markAsComplete();
+
+    /**
+     * Returns a simple string representation of this object.
+     */
+    @NonNull String toSimpleString();
 }
