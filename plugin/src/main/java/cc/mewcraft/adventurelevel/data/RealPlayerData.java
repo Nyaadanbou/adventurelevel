@@ -1,16 +1,16 @@
 package cc.mewcraft.adventurelevel.data;
 
+import cc.mewcraft.adventurelevel.event.AdventureLevelDataLoadEvent;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.jetbrains.annotations.NotNull;
 
 public class RealPlayerData implements PlayerData {
     /**
@@ -24,13 +24,13 @@ public class RealPlayerData implements PlayerData {
     /**
      * A map containing all levels.
      */
-    private final ConcurrentHashMap<LevelCategory, Level> levelMap;
+    private final ConcurrentHashMap<LevelCategory, Level> levelData;
     /**
      * A variable indicating whether this player data has been fully loaded. If true (=complete), that means the data
      * has been fully loaded, and getters will return current values; otherwise, false (=incomplete) means it's not been
      * fully loaded and the returned values should not be used.
      */
-    private final AtomicBoolean complete = new AtomicBoolean(false);
+    private final AtomicBoolean isComplete = new AtomicBoolean(false);
 
     /**
      * This constructor is used to fast create an empty PlayerData in the main thread.
@@ -44,30 +44,30 @@ public class RealPlayerData implements PlayerData {
             final AdventureLevelPlugin plugin,
             final UUID uuid
     ) {
-        markAsIncomplete();
-
         this.plugin = plugin;
         this.uuid = uuid;
-        this.levelMap = new ConcurrentHashMap<>();
+        this.levelData = new ConcurrentHashMap<>();
+
+        markAsIncomplete();
     }
 
     /**
      * You must pass in a complete set of data to this constructor.
      *
-     * @param plugin   the plugin instance
-     * @param uuid     the uuid of backed player
-     * @param levelMap the map must already be filled with instances of all levels
+     * @param plugin    the plugin instance
+     * @param uuid      the uuid of backed player
+     * @param levelData the map must already be filled with instances of all levels
      */
     public RealPlayerData(
             final AdventureLevelPlugin plugin,
             final UUID uuid,
-            final ConcurrentHashMap<LevelCategory, Level> levelMap
+            final ConcurrentHashMap<LevelCategory, Level> levelData
     ) {
-        markAsComplete();
-
         this.plugin = plugin;
         this.uuid = uuid;
-        this.levelMap = levelMap;
+        this.levelData = levelData;
+
+        markAsComplete();
     }
 
     @Override public @NotNull UUID getUuid() {
@@ -75,24 +75,25 @@ public class RealPlayerData implements PlayerData {
     }
 
     @Override public @NotNull Level getLevel(LevelCategory category) {
-        return Objects.requireNonNull(levelMap.get(category));
+        return Objects.requireNonNull(levelData.get(category));
     }
 
     @Override public @NotNull Map<LevelCategory, Level> asMap() {
-        return levelMap;
+        return levelData;
     }
 
     @Override public boolean complete() {
-        return complete.get();
+        return isComplete.get();
     }
 
     @Override public PlayerData markAsIncomplete() {
-        complete.set(false);
+        isComplete.set(false);
         return this;
     }
 
     @Override public PlayerData markAsComplete() {
-        complete.set(true);
+        isComplete.set(true);
+        new AdventureLevelDataLoadEvent(this).callEvent();
         return this;
     }
 }
