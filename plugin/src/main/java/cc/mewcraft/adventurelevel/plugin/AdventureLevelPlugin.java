@@ -4,6 +4,7 @@ import cc.mewcraft.adventurelevel.command.CommandManager;
 import cc.mewcraft.adventurelevel.data.PlayerDataManager;
 import cc.mewcraft.adventurelevel.data.PlayerDataManagerImpl;
 import cc.mewcraft.adventurelevel.file.DataStorage;
+import cc.mewcraft.adventurelevel.file.HuskDataStorage;
 import cc.mewcraft.adventurelevel.file.SQLDataStorage;
 import cc.mewcraft.adventurelevel.hooks.luckperms.LevelContextCalculator;
 import cc.mewcraft.adventurelevel.hooks.placeholder.MiniPlaceholderExpansion;

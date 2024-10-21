@@ -29,6 +29,7 @@ dependencies {
     compileOnly(local.paper)
     compileOnly(local.helper)
     compileOnly(local.helper.redis)
+    compileOnly(libs.husksync.bukkit)
 }
 
 tasks {
@@ -46,6 +47,10 @@ paper {
     apiVersion = "1.21"
     authors = listOf("Nailm")
     serverDependencies {
+        register("HuskSync") {
+            required = true
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
         register("helper") {
             required = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
