@@ -7,13 +7,13 @@ import jakarta.inject.Singleton;
 import net.william278.husksync.data.DataSnapshot;
 import net.william278.husksync.event.BukkitDataSaveEvent;
 import net.william278.husksync.event.BukkitSyncCompleteEvent;
-import net.william278.husksync.user.BukkitUser;
-import org.bukkit.entity.Player;
+import net.william278.husksync.user.User;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.slf4j.Logger;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * 运行在一个服务器网络里的 {@link UserdataListener}.
@@ -39,24 +39,24 @@ public class NetworkUserdataListener extends UserdataListener {
     public void on(final BukkitSyncCompleteEvent event) {
         // 该事件发生意味着 HuskSync 已经将玩家数据同步到当前服务器.
 
-        final BukkitUser user = (BukkitUser) event.getUser();
-        final Player player = user.getPlayer();
+        final User user = event.getUser();
+        final UUID userUuid = user.getUuid();
 
-        loadPlayerData(player);
+        loadPlayerData(userUuid);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void on(final BukkitDataSaveEvent event) {
         // 该事件发生意味着 HuskSync 已经将玩家数据保存到数据库.
 
-        final BukkitUser user = (BukkitUser) event.getUser();
-        final Player player = user.getPlayer();
+        final User user = event.getUser();
+        final UUID userUuid = user.getUuid();
         final DataSnapshot.SaveCause saveCause = event.getSaveCause();
 
         if (isSameSaveCause(saveCause, DataSnapshot.SaveCause.DISCONNECT) ||
             isSameSaveCause(saveCause, DataSnapshot.SaveCause.SERVER_SHUTDOWN)
         ) {
-            savePlayerData(player);
+            savePlayerData(userUuid);
         }
     }
 

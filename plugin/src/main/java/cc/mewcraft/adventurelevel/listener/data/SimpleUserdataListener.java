@@ -11,6 +11,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.slf4j.Logger;
 
+import java.util.UUID;
+
 /**
  * 运行在一个单独服务器里的 {@link UserdataListener}.
  * <p>
@@ -31,8 +33,9 @@ public class SimpleUserdataListener extends UserdataListener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void on(final PlayerJoinEvent event) {
         final Player player = event.getPlayer();
+        final UUID playerUniqueId = player.getUniqueId();
 
-        loadPlayerData(player);
+        loadPlayerData(playerUniqueId);
     }
 
     @EventHandler(priority = EventPriority.LOWEST) // use the lowest priority, so we handle it as soon as possible
@@ -57,7 +60,8 @@ public class SimpleUserdataListener extends UserdataListener {
         // may also help reduce the potential database traffic.
 
         final Player player = event.getPlayer();
+        final UUID playerUniqueId = player.getUniqueId();
 
-        savePlayerData(player);
+        savePlayerData(playerUniqueId);
     }
 }
