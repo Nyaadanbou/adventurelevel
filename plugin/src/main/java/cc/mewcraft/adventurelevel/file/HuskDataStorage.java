@@ -28,12 +28,15 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+// FIXME 未完全测试的 AbstractDataStorage 实现
+//  用于试验使用 HuskSync 来作为数据储存/同步的方式
+
 @Singleton
 public class HuskDataStorage extends AbstractDataStorage {
-    private static final Identifier HUSK_PLAYER_DATA_ID = Identifier.from("adventure_level", "player_data");
+    private static final Identifier HUSK_PLAYER_DATA_ID = Identifier.from("adventurelevel", "player_data");
 
     // HuskSyncAPI
-    private final HuskSyncAPI huskSyncAPI;
+    private final HuskSyncAPI huskSyncApi;
 
     // Logger
     private final Logger logger;
@@ -44,13 +47,13 @@ public class HuskDataStorage extends AbstractDataStorage {
             final Logger logger
     ) {
         super(plugin);
-        this.huskSyncAPI = HuskSyncAPI.getInstance();
+        this.huskSyncApi = HuskSyncAPI.getInstance();
         this.logger = logger;
     }
 
     @Override
     public void init() {
-        HuskSync huskSync = huskSyncAPI.getPlugin();
+        HuskSync huskSync = huskSyncApi.getPlugin();
         huskSync.registerSerializer(HUSK_PLAYER_DATA_ID, new HuskPlayerDataSerializer(huskSync));
     }
 
@@ -71,9 +74,9 @@ public class HuskDataStorage extends AbstractDataStorage {
         }};
 
         PlayerData playerData = new RealPlayerData(plugin, uuid, levels);
-        HuskPlayerData husk = new HuskPlayerData(playerData);
+        HuskPlayerData huskPlayerData = new HuskPlayerData(playerData);
 
-        BukkitUser user = (BukkitUser) huskSyncAPI.getUser(uuid).join().orElseGet(() -> {
+        BukkitUser user = (BukkitUser) huskSyncApi.getUser(uuid).join().orElseGet(() -> {
             logger.warn("Failed to create new userdata in database for {}", PlayerUtils.getReadableString(uuid));
             return null;
         });
@@ -82,7 +85,7 @@ public class HuskDataStorage extends AbstractDataStorage {
             return PlayerData.DUMMY;
         }
 
-        user.setData(HUSK_PLAYER_DATA_ID, husk);
+        user.setData(HUSK_PLAYER_DATA_ID, huskPlayerData);
 
         logger.info("Created new userdata in database: {}", playerData.toSimpleString());
         return playerData;
@@ -90,7 +93,7 @@ public class HuskDataStorage extends AbstractDataStorage {
 
     @Override
     public @NonNull PlayerData load(UUID uuid) {
-        BukkitUser user = (BukkitUser) huskSyncAPI.getUser(uuid).join().orElseThrow();
+        BukkitUser user = (BukkitUser) huskSyncApi.getUser(uuid).join().orElseThrow();
         HuskPlayerData husk = (HuskPlayerData) user.getData(HUSK_PLAYER_DATA_ID).orElseGet(() -> {
             logger.warn("Userdata not found in database for {}", PlayerUtils.getReadableString(uuid));
             return null;
@@ -112,7 +115,7 @@ public class HuskDataStorage extends AbstractDataStorage {
         }
 
         HuskPlayerData husk = new HuskPlayerData(playerData);
-        BukkitUser user = (BukkitUser) huskSyncAPI.getUser(playerData.getUuid()).join().orElseThrow();
+        BukkitUser user = (BukkitUser) huskSyncApi.getUser(playerData.getUuid()).join().orElseThrow();
         user.setData(HUSK_PLAYER_DATA_ID, husk);
         logger.info("Saved userdata to database: {}", playerData.toSimpleString());
     }
@@ -198,7 +201,8 @@ public class HuskDataStorage extends AbstractDataStorage {
 
         // We need to create a constructor that takes our instance of the API
         public HuskPlayerDataSerializer(@NotNull HuskSync huskSync) {
-            super(huskSync, HuskPlayerData.class); // We pass the class type here so that Gson knows what class we're serializing
+            // We pass the class type here so that Gson knows what class we're serializing
+            super(huskSync, HuskPlayerData.class);
         }
 
     }
