@@ -13,6 +13,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.slf4j.Logger;
 
+import java.util.Objects;
+
 /**
  * 运行在一个服务器网络里的 {@link UserdataListener}.
  * <p>
@@ -51,10 +53,14 @@ public class NetworkUserdataListener extends UserdataListener {
         final Player player = user.getPlayer();
         final DataSnapshot.SaveCause saveCause = event.getSaveCause();
 
-        if (saveCause == DataSnapshot.SaveCause.DISCONNECT ||
-            saveCause == DataSnapshot.SaveCause.SERVER_SHUTDOWN
+        if (isSameSaveCause(saveCause, DataSnapshot.SaveCause.DISCONNECT) ||
+            isSameSaveCause(saveCause, DataSnapshot.SaveCause.SERVER_SHUTDOWN)
         ) {
             savePlayerData(player);
         }
+    }
+
+    private boolean isSameSaveCause(final DataSnapshot.SaveCause cause1, final DataSnapshot.SaveCause cause2) {
+        return Objects.equals(cause1.name(), cause2.name());
     }
 }
