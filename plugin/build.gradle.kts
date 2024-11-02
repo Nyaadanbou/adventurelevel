@@ -7,7 +7,7 @@ plugins {
     alias(local.plugins.pluginyml.paper)
 }
 
-version = "1.1.1"
+version = "1.2.0"
 description = "Add adventure level to players"
 
 dependencies {
@@ -47,10 +47,6 @@ paper {
     apiVersion = "1.21"
     authors = listOf("Nailm")
     serverDependencies {
-        register("HuskSync") {
-            required = true
-            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
-        }
         register("helper") {
             required = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
@@ -60,6 +56,10 @@ paper {
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("LuckPerms") {
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.OMIT
+        }
+        register("HuskSync") {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.OMIT
         }

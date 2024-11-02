@@ -1,44 +1,42 @@
-package cc.mewcraft.adventurelevel.listener;
+package cc.mewcraft.adventurelevel.listener.data;
 
 import cc.mewcraft.adventurelevel.data.PlayerDataManager;
 import cc.mewcraft.adventurelevel.message.PlayerDataMessenger;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import net.william278.husksync.event.BukkitDataSaveEvent;
-import net.william278.husksync.event.BukkitSyncCompleteEvent;
-import net.william278.husksync.user.BukkitUser;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.slf4j.Logger;
 
+/**
+ * 运行在一个单独服务器里的 {@link UserdataListener}.
+ * <p>
+ * 如果插件只在一个服务器上运行, 并没有跨服传送与数据同步的场景, 使用这个类.
+ */
 @Singleton
-public class UserdataListener implements Listener {
-
-    private final Logger logger;
-    private final PlayerDataManager playerDataManager;
-    private final PlayerDataMessenger playerDataMessenger;
+public class SimpleUserdataListener extends UserdataListener {
 
     @Inject
-    public UserdataListener(
+    public SimpleUserdataListener(
             final Logger logger,
             final PlayerDataManager playerDataManager,
             final PlayerDataMessenger playerDataMessenger
     ) {
-        this.logger = logger;
-        this.playerDataManager = playerDataManager;
-        this.playerDataMessenger = playerDataMessenger;
+        super(logger, playerDataManager, playerDataMessenger);
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onSyncComplete(BukkitSyncCompleteEvent event) {
-        BukkitUser user = (BukkitUser) event.getUser();
-        playerDataManager.load(user.getPlayer());
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void on(final PlayerJoinEvent event) {
+        final Player player = event.getPlayer();
+
+        loadPlayerData(player);
     }
 
     @EventHandler(priority = EventPriority.LOWEST) // use the lowest priority, so we handle it as soon as possible
-    public void onDataSave(BukkitDataSaveEvent event) {
-        BukkitUser user = (BukkitUser) event.getUser();
+    public void on(final PlayerQuitEvent event) {
         // Player quit the server, which means the player either:
         // - disconnecting from the network completely, or
         // - switching to another server in the network
@@ -58,17 +56,8 @@ public class UserdataListener implements Listener {
         // Not removing the cache immediately after the player quit
         // may also help reduce the potential database traffic.
 
-        final var player = user.getPlayer();
+        final Player player = event.getPlayer();
 
-        final var data = playerDataManager.load(player);
-        if (data.complete()) {
-            playerDataMessenger.publish(data);
-            playerDataManager.save(data);
-            playerDataManager.unload(player);
-        } else {
-            logger.warn(
-                    "Possible errors! {} quit the server but their data is marked as incomplete - aborting to publish data to the network", player.getName()
-            );
-        }
+        savePlayerData(player);
     }
 }
