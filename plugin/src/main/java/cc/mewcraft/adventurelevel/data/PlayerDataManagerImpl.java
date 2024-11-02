@@ -105,7 +105,6 @@ public class PlayerDataManagerImpl implements PlayerDataManager {
     }
 
     @Override public @NonNull PlayerData load(final @NonNull UUID uuid) {
-
         return cache.getUnchecked(uuid);
     }
 

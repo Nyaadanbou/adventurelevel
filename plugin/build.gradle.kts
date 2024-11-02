@@ -7,7 +7,7 @@ plugins {
     alias(local.plugins.pluginyml.paper)
 }
 
-version = "1.1.1"
+version = "1.2.0"
 description = "Add adventure level to players"
 
 dependencies {
@@ -29,6 +29,7 @@ dependencies {
     compileOnly(local.paper)
     compileOnly(local.helper)
     compileOnly(local.helper.redis)
+    compileOnly(libs.husksync.bukkit)
 }
 
 tasks {
@@ -55,6 +56,10 @@ paper {
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("LuckPerms") {
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.OMIT
+        }
+        register("HuskSync") {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.OMIT
         }

@@ -1,4 +1,4 @@
-package cc.mewcraft.adventurelevel.listener;
+package cc.mewcraft.adventurelevel.listener.game;
 
 import cc.mewcraft.adventurelevel.data.PlayerData;
 import cc.mewcraft.adventurelevel.data.PlayerDataManager;
