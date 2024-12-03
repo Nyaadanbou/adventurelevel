@@ -57,11 +57,11 @@ paper {
         }
         register("LuckPerms") {
             required = false
-            load = PaperPluginDescription.RelativeLoadOrder.OMIT
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("HuskSync") {
             required = false
-            load = PaperPluginDescription.RelativeLoadOrder.OMIT
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("PlaceholderAPI") {
             required = false
