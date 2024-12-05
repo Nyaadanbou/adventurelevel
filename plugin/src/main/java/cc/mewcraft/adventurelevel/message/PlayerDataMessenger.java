@@ -81,16 +81,14 @@ public class PlayerDataMessenger implements Terminable {
             // Save data in the message store
             messageStore.put(uuid, message);
 
-            if (playerDataManager.asMap().containsKey(uuid)) {
-                PlayerData data = playerDataManager.asMap().get(uuid);
-                if (data.complete()) {
-                    // Here we only need to update *complete* entry,
-                    // while *incomplete* means that the entry is newly created (or re-added),
-                    // in which case the CacheLoader will handle the data loading.
+            PlayerData data = playerDataManager.asMap().get(uuid);
+            if (data != null && data.complete()) {
+                // Here we only need to update *complete* entry,
+                // while *incomplete* means that the entry is newly created (or re-added),
+                // in which case the CacheLoader will handle the data loading.
 
-                    PlayerDataUpdater.update(data, message);
-                    logger.info("Update userdata in cache: {}", message.toSimpleString());
-                }
+                PlayerDataUpdater.update(data, message);
+                logger.info("Update userdata in data: {}", message.toSimpleString());
             }
         });
     }
