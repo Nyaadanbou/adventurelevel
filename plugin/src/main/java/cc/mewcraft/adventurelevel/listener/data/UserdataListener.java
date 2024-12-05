@@ -13,7 +13,7 @@ import java.util.UUID;
  */
 public abstract class UserdataListener implements Listener {
 
-    private final Logger logger;
+    protected final Logger logger;
     private final PlayerDataManager playerDataManager;
     private final PlayerDataMessenger playerDataMessenger;
 

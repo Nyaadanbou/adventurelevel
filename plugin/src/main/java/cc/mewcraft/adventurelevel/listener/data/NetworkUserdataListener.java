@@ -12,6 +12,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.slf4j.Logger;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -22,6 +24,8 @@ import java.util.UUID;
  */
 @Singleton
 public class NetworkUserdataListener extends UserdataListener {
+
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("mm:ss.SSS");
 
     @Inject
     public NetworkUserdataListener(
@@ -38,6 +42,8 @@ public class NetworkUserdataListener extends UserdataListener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void on(final BukkitSyncCompleteEvent event) {
         // 该事件发生意味着 HuskSync 已经将玩家数据同步到当前服务器.
+
+        logger.info("[{}] BukkitSyncCompleteEvent is fired, executing listener NetworkUserdataListener#on", LocalDateTime.now().format(FORMATTER));
 
         final User user = event.getUser();
         final UUID userUuid = user.getUuid();
