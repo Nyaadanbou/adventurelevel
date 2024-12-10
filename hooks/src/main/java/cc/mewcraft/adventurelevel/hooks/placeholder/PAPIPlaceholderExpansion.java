@@ -1,7 +1,7 @@
 package cc.mewcraft.adventurelevel.hooks.placeholder;
 
-import cc.mewcraft.adventurelevel.data.PlayerData;
-import cc.mewcraft.adventurelevel.data.PlayerDataManager;
+import cc.mewcraft.adventurelevel.data.UserData;
+import cc.mewcraft.adventurelevel.data.UserDataRepository;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import jakarta.inject.Inject;
@@ -9,6 +9,7 @@ import jakarta.inject.Singleton;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.lucko.helper.terminable.Terminable;
 import org.bukkit.OfflinePlayer;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -17,12 +18,12 @@ import java.math.RoundingMode;
 
 @Singleton
 public class PAPIPlaceholderExpansion implements Terminable {
-    private final PlayerDataManager playerDataManager;
-    private AdventureLevelExpansion placeholderExpansion;
+    @NonNull private final UserDataRepository userDataRepository;
+    @MonotonicNonNull private AdventureLevelExpansion placeholderExpansion;
 
     @Inject
-    public PAPIPlaceholderExpansion(final PlayerDataManager playerDataManager) {
-        this.playerDataManager = playerDataManager;
+    public PAPIPlaceholderExpansion(@NonNull final UserDataRepository userDataRepository) {
+        this.userDataRepository = userDataRepository;
     }
 
     public PAPIPlaceholderExpansion register() {
@@ -41,8 +42,8 @@ public class PAPIPlaceholderExpansion implements Terminable {
 
     private class AdventureLevelExpansion extends PlaceholderExpansion {
         @Override public @Nullable String onRequest(final OfflinePlayer player, final @NonNull String params) {
-            PlayerData data = playerDataManager.load(player);
-            if (!data.complete()) return "";
+            UserData data = userDataRepository.getCached(player.getUniqueId());
+            if (data == null) return "";
 
             Level primary = data.getLevel(LevelCategory.PRIMARY);
 

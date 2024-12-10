@@ -1,19 +1,20 @@
 package cc.mewcraft.adventurelevel.hooks.luckperms;
 
-import cc.mewcraft.adventurelevel.data.PlayerData;
-import cc.mewcraft.adventurelevel.data.PlayerDataManager;
+import cc.mewcraft.adventurelevel.data.UserData;
+import cc.mewcraft.adventurelevel.data.UserDataRepository;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import jakarta.inject.Inject;
 import net.luckperms.api.LuckPermsProvider;
 import org.bukkit.OfflinePlayer;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public class LevelContextCalculator {
-    private final PlayerDataManager playerDataManager;
+    @NonNull private final UserDataRepository userDataRepository;
 
     @Inject
-    public LevelContextCalculator(final @NonNull PlayerDataManager playerDataManager) {
-        this.playerDataManager = playerDataManager;
+    public LevelContextCalculator(final @NotNull UserDataRepository userDataRepository) {
+        this.userDataRepository = userDataRepository;
     }
 
     public void register() {
@@ -23,12 +24,10 @@ public class LevelContextCalculator {
         // "dummy" values when not available yet.
 
         LuckPermsProvider.get().getContextManager().registerCalculator((target, consumer) -> {
-            PlayerData data = playerDataManager.load((OfflinePlayer) target);
-            consumer.accept("adventure-level",
-                    data.complete()
-                            ? String.valueOf(data.getLevel(LevelCategory.PRIMARY).getLevel())
-                            : "0"
-            );
+            final UserData data = userDataRepository.getCached(((OfflinePlayer) target).getUniqueId());
+            final String key = "adventure-level";
+            final String value = data == null ? "0" : String.valueOf(data.getLevel(LevelCategory.PRIMARY));
+            consumer.accept(key, value);
         });
     }
 }

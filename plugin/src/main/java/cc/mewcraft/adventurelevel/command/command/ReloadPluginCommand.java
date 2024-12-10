@@ -9,6 +9,7 @@ import org.incendo.cloud.Command;
 
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ReloadPluginCommand extends AbstractCommand {
     public ReloadPluginCommand(
             final AdventureLevelPlugin plugin,
@@ -22,8 +23,8 @@ public class ReloadPluginCommand extends AbstractCommand {
                 .literal("reload")
                 .permission("adventurelevel.command.admin")
                 .handler(context -> {
-                    plugin.reloadConfigPart();
-                    plugin.translations().of("msg_config_reloaded").resolver(
+                    plugin.reloadConfig0();
+                    plugin.getTranslations().of("msg_config_reloaded").resolver(
                             Placeholder.unparsed("plugin", plugin.getName()),
                             Placeholder.unparsed("version", plugin.getPluginMeta().getVersion()),
                             Placeholder.unparsed("author", plugin.getPluginMeta().getAuthors().getFirst())

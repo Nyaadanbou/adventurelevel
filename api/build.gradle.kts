@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 
-version = "1.4.0"
+description = "The API of AdventureLevel"
 
 dependencies {
     compileOnly(local.guice)

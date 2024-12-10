@@ -7,6 +7,7 @@ plugins {
 
 val local = the<org.gradle.accessors.dm.LibrariesForLocal>()
 
+version = "2.0.0"
 group = "cc.mewcraft.adventurelevel"
 
 repositories {

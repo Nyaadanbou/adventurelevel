@@ -1,17 +1,14 @@
 package cc.mewcraft.adventurelevel.file;
 
-import cc.mewcraft.adventurelevel.data.PlayerData;
-import cc.mewcraft.adventurelevel.data.RealPlayerData;
+import cc.mewcraft.adventurelevel.data.SimpleUserData;
 import cc.mewcraft.adventurelevel.level.LevelFactory;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
-import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
 import cc.mewcraft.adventurelevel.util.PlayerUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import net.kyori.examination.Examinable;
 import net.kyori.examination.ExaminableProperty;
-import net.kyori.examination.string.StringExaminer;
 import net.william278.husksync.BukkitHuskSync;
 import net.william278.husksync.HuskSync;
 import net.william278.husksync.adapter.Adaptable;
@@ -21,6 +18,7 @@ import net.william278.husksync.data.Identifier;
 import net.william278.husksync.data.Serializer;
 import net.william278.husksync.user.BukkitUser;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -32,7 +30,7 @@ import java.util.stream.Stream;
 //  用于试验使用 HuskSync 来作为数据储存/同步的方式
 
 @Singleton
-public class HuskDataStorage extends AbstractDataStorage {
+public class HuskDataStorage extends AbstractUserDataStorage {
     private static final Identifier HUSK_PLAYER_DATA_ID = Identifier.from("adventurelevel", "player_data");
 
     // HuskSyncAPI
@@ -43,10 +41,9 @@ public class HuskDataStorage extends AbstractDataStorage {
 
     @Inject
     public HuskDataStorage(
-            final AdventureLevelPlugin plugin,
             final Logger logger
     ) {
-        super(plugin);
+        super();
         this.huskSyncApi = HuskSyncAPI.getInstance();
         this.logger = logger;
     }
@@ -54,13 +51,13 @@ public class HuskDataStorage extends AbstractDataStorage {
     @Override
     public void init() {
         HuskSync huskSync = huskSyncApi.getPlugin();
-        huskSync.registerSerializer(HUSK_PLAYER_DATA_ID, new HuskPlayerDataSerializer(huskSync));
+        huskSync.registerSerializer(HUSK_PLAYER_DATA_ID, new HuskUserDataSerializer(huskSync));
     }
 
     @Override
-    public @NonNull PlayerData create(UUID uuid) {
+    public @NonNull SimpleUserData create(@NonNull UUID uuid) {
         // Construct a map of empty levels
-        ConcurrentHashMap<LevelCategory, Level> levels = new ConcurrentHashMap<>() {{
+        final ConcurrentHashMap<LevelCategory, Level> levels = new ConcurrentHashMap<>() {{
             put(LevelCategory.PRIMARY, LevelFactory.newLevel(LevelCategory.PRIMARY));
             put(LevelCategory.PLAYER_DEATH, LevelFactory.newLevel(LevelCategory.PLAYER_DEATH));
             put(LevelCategory.ENTITY_DEATH, LevelFactory.newLevel(LevelCategory.ENTITY_DEATH));
@@ -73,59 +70,53 @@ public class HuskDataStorage extends AbstractDataStorage {
             put(LevelCategory.GRINDSTONE, LevelFactory.newLevel(LevelCategory.GRINDSTONE));
         }};
 
-        PlayerData playerData = new RealPlayerData(plugin, uuid, levels);
-        HuskPlayerData huskPlayerData = new HuskPlayerData(playerData);
+        final SimpleUserData simpleUserData = new SimpleUserData(uuid, levels);
+        final HuskUserData huskUserData = new HuskUserData(simpleUserData);
+        final BukkitUser bukkitUser = (BukkitUser) huskSyncApi.getUser(uuid).join().orElseThrow(() ->
+                new IllegalStateException("failed to create new userdata in HuskSync data storage for player " + PlayerUtils.getPrettyString(uuid))
+        );
 
-        BukkitUser user = (BukkitUser) huskSyncApi.getUser(uuid).join().orElseGet(() -> {
-            logger.warn("Failed to create new userdata in database for {}", PlayerUtils.getReadableString(uuid));
-            return null;
-        });
+        bukkitUser.setData(HUSK_PLAYER_DATA_ID, huskUserData);
+        logger.info("[{}] Created new userdata in HuskSync data storage: {}", PlayerUtils.getName(uuid), simpleUserData);
 
-        if (user == null) {
-            return PlayerData.DUMMY;
-        }
-
-        user.setData(HUSK_PLAYER_DATA_ID, huskPlayerData);
-
-        logger.info("Created new userdata in database: {}", playerData.toSimpleString());
-        return playerData;
+        return simpleUserData;
     }
 
     @Override
-    public @NonNull PlayerData load(UUID uuid) {
-        BukkitUser user = (BukkitUser) huskSyncApi.getUser(uuid).join().orElseThrow();
-        HuskPlayerData husk = (HuskPlayerData) user.getData(HUSK_PLAYER_DATA_ID).orElseGet(() -> {
-            logger.warn("Userdata not found in database for {}", PlayerUtils.getReadableString(uuid));
+    public @Nullable SimpleUserData load(@NonNull UUID uuid) {
+        BukkitUser bukkitUser = (BukkitUser) huskSyncApi.getUser(uuid).join().orElseThrow();
+        HuskUserData huskUserData = (HuskUserData) bukkitUser.getData(HUSK_PLAYER_DATA_ID).orElseGet(() -> {
+            logger.warn("[{}] Userdata not found in HuskSync data storage", PlayerUtils.getName(uuid));
             return null;
         });
 
-        if (husk == null) {
-            return PlayerData.DUMMY;
+        if (huskUserData == null) {
+            return null;
         }
 
-        logger.info("Loaded userdata from database: {}", husk.toSimpleString());
-        return new RealPlayerData(plugin, uuid, husk.getLevels());
+        logger.info("[{}] Loaded userdata from HuskSync data storage: {}", PlayerUtils.getName(uuid), huskUserData);
+        return new SimpleUserData(uuid, huskUserData.getLevels());
     }
 
     @Override
-    public void save(PlayerData playerData) {
-        if (playerData.equals(PlayerData.DUMMY) || !playerData.complete()) {
-            logger.info("Skipped saving userdata to database for {}", playerData.toSimpleString());
+    public void save(@NonNull SimpleUserData data) {
+        if (!data.isPopulated()) {
+            logger.warn("[{}] Skipped saving userdata to HuskSync data storage", PlayerUtils.getName(data.getUuid()));
             return;
         }
 
-        HuskPlayerData husk = new HuskPlayerData(playerData);
-        BukkitUser user = (BukkitUser) huskSyncApi.getUser(playerData.getUuid()).join().orElseThrow();
-        user.setData(HUSK_PLAYER_DATA_ID, husk);
-        logger.info("Saved userdata to database: {}", playerData.toSimpleString());
+        HuskUserData huskUserData = new HuskUserData(data);
+        BukkitUser bukkitUser = (BukkitUser) huskSyncApi.getUser(data.getUuid()).join().orElseThrow();
+        bukkitUser.setData(HUSK_PLAYER_DATA_ID, huskUserData);
+        logger.info("[{}] Saved userdata to HuskSync data storage: {}", PlayerUtils.getName(data.getUuid()), data);
     }
 
     @Override
     public void close() {
-        // Do nothing
+        // NOP
     }
 
-    private static class HuskPlayerData extends BukkitData implements Adaptable, Examinable {
+    private static class HuskUserData extends BukkitData implements Adaptable, Examinable {
         public final long timestamp;
         public final int primaryXp;
         public final int blockBreakXp;
@@ -138,7 +129,7 @@ public class HuskDataStorage extends AbstractDataStorage {
         public final int playerDeathXp;
         public final int villagerTradeXp;
 
-        public HuskPlayerData(PlayerData data) {
+        public HuskUserData(SimpleUserData data) {
             this.timestamp = System.currentTimeMillis();
             this.primaryXp = data.getLevel(LevelCategory.PRIMARY).getExperience();
             this.blockBreakXp = data.getLevel(LevelCategory.BLOCK_BREAK).getExperience();
@@ -154,7 +145,7 @@ public class HuskDataStorage extends AbstractDataStorage {
 
         @Override
         public void apply(@NotNull BukkitUser user, @NotNull BukkitHuskSync plugin) throws IllegalStateException {
-
+            // NOP
         }
 
         public ConcurrentHashMap<LevelCategory, Level> getLevels() {
@@ -170,10 +161,6 @@ public class HuskDataStorage extends AbstractDataStorage {
                 put(LevelCategory.EXP_BOTTLE, LevelFactory.newLevel(LevelCategory.EXP_BOTTLE).withExperience(expBottleXp));
                 put(LevelCategory.GRINDSTONE, LevelFactory.newLevel(LevelCategory.GRINDSTONE).withExperience(grindstoneXp));
             }};
-        }
-
-        public @NonNull String toSimpleString() {
-            return "HuskPlayerData{timestamp=" + timestamp + ", primaryExp=" + primaryXp + "}";
         }
 
         @Override public @NonNull Stream<? extends ExaminableProperty> examinableProperties() {
@@ -192,17 +179,17 @@ public class HuskDataStorage extends AbstractDataStorage {
             );
         }
 
-        @Override public @NonNull String toString() {
-            return StringExaminer.simpleEscaping().examine(this);
+        public @NonNull String toString() {
+            return "HuskUserData{timestamp=" + timestamp + ", primaryExp=" + primaryXp + "}";
         }
     }
 
-    private static class HuskPlayerDataSerializer extends Serializer.Json<HuskPlayerData> implements Serializer<HuskPlayerData> {
+    private static class HuskUserDataSerializer extends Serializer.Json<HuskUserData> implements Serializer<HuskUserData> {
 
         // We need to create a constructor that takes our instance of the API
-        public HuskPlayerDataSerializer(@NotNull HuskSync huskSync) {
+        public HuskUserDataSerializer(@NotNull HuskSync huskSync) {
             // We pass the class type here so that Gson knows what class we're serializing
-            super(huskSync, HuskPlayerData.class);
+            super(huskSync, HuskUserData.class);
         }
 
     }

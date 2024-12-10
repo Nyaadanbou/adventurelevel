@@ -1,6 +1,6 @@
 package cc.mewcraft.adventurelevel.event;
 
-import cc.mewcraft.adventurelevel.data.PlayerData;
+import cc.mewcraft.adventurelevel.data.UserData;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -12,15 +12,20 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 public class AdventureLevelDataLoadEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
-    private final PlayerData playerData;
+    private final UserData userData;
 
-    public AdventureLevelDataLoadEvent(PlayerData playerData) {
+    public AdventureLevelDataLoadEvent(UserData userData) {
         super(!Bukkit.isPrimaryThread());
-        this.playerData = playerData;
+        this.userData = userData;
     }
 
-    public PlayerData getPlayerData() {
-        return playerData;
+    /**
+     * 返回加载的玩家数据. 该数据确保已经加载完成.
+     *
+     * @return 加载的玩家数据
+     */
+    public UserData getUserData() {
+        return userData;
     }
 
     @Override public @NonNull HandlerList getHandlers() {

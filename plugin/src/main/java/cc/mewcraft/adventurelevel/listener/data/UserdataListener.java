@@ -1,57 +1,61 @@
 package cc.mewcraft.adventurelevel.listener.data;
 
-import cc.mewcraft.adventurelevel.data.PlayerData;
-import cc.mewcraft.adventurelevel.data.PlayerDataManager;
-import cc.mewcraft.adventurelevel.message.PlayerDataMessenger;
+import cc.mewcraft.adventurelevel.data.SimpleUserData;
+import cc.mewcraft.adventurelevel.data.UserDataManager;
+import cc.mewcraft.adventurelevel.message.UserDataMessenger;
+import cc.mewcraft.adventurelevel.util.PlayerUtils;
 import org.bukkit.event.Listener;
 import org.slf4j.Logger;
 
 import java.util.UUID;
 
 /**
- * 负责创建和清理 {@link PlayerData} 实例.
+ * 负责创建和清理 {@link cc.mewcraft.adventurelevel.data.SimpleUserData} 实例.
  */
 public abstract class UserdataListener implements Listener {
 
     protected final Logger logger;
-    private final PlayerDataManager playerDataManager;
-    private final PlayerDataMessenger playerDataMessenger;
+    private final UserDataManager userDataManager;
+    private final UserDataMessenger userDataMessenger;
 
     protected UserdataListener(
             final Logger logger,
-            final PlayerDataManager playerDataManager,
-            final PlayerDataMessenger playerDataMessenger
+            final UserDataManager userDataManager,
+            final UserDataMessenger userDataMessenger
     ) {
         this.logger = logger;
-        this.playerDataManager = playerDataManager;
-        this.playerDataMessenger = playerDataMessenger;
+        this.userDataManager = userDataManager;
+        this.userDataMessenger = userDataMessenger;
     }
 
     /**
      * 加载玩家数据.
      *
-     * @param playerUniqueId 玩家的 UUID
+     * @param playerUuid 玩家的 UUID
      */
-    protected void loadPlayerData(final UUID playerUniqueId) {
-        playerDataManager.load(playerUniqueId);
+    protected void loadUserData(final UUID playerUuid) {
+        userDataManager.loadAsync(playerUuid);
     }
 
     /**
      * 保存玩家数据.
      *
-     * @param playerUniqueId 玩家的 UUID
+     * @param playerUuid 玩家的 UUID
      */
-    protected void savePlayerData(final UUID playerUniqueId) {
-        final PlayerData data = playerDataManager.load(playerUniqueId);
+    protected void saveUserData(final UUID playerUuid) {
+        final SimpleUserData data = userDataManager.getCached0(playerUuid);
 
-        if (data.complete()) {
-            playerDataMessenger.publish(data);
-            playerDataManager.save(data);
-            playerDataManager.unload(playerUniqueId);
+        if (data == null) {
+            logger.warn("[{}] Attempted to save data but the data is not cached", PlayerUtils.getName(playerUuid));
+            return;
+        }
+
+        if (data.isPopulated()) {
+            userDataMessenger.publish(data);
+            userDataManager.unload(playerUuid);
+            userDataManager.save(data);
         } else {
-            logger.warn(
-                    "Possible errors! {} quit the server but their data is marked as incomplete - aborting to publish data to the network", playerUniqueId
-            );
+            logger.warn("[{}] Possible errors! The player quit the server but the data is not populated - aborting to sync", PlayerUtils.getName(playerUuid));
         }
     }
 }

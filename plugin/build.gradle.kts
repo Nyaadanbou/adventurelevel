@@ -7,8 +7,7 @@ plugins {
     alias(local.plugins.pluginyml.paper)
 }
 
-version = "1.2.0"
-description = "Add adventure level to players"
+description = "Add adventure levels to players"
 
 dependencies {
     // internal

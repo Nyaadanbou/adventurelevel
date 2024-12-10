@@ -25,7 +25,7 @@ redis:
 
 # 其他设置, 请勿修改
 synchronization:
-  network_latency_milliseconds: 500
+  message_expire_milliseconds: 1000
 
 # 主等级设置
 primary_level:

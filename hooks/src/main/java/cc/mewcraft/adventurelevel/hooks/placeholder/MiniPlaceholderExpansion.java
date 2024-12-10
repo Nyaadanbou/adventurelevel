@@ -1,7 +1,7 @@
 package cc.mewcraft.adventurelevel.hooks.placeholder;
 
-import cc.mewcraft.adventurelevel.data.PlayerData;
-import cc.mewcraft.adventurelevel.data.PlayerDataManager;
+import cc.mewcraft.adventurelevel.data.UserData;
+import cc.mewcraft.adventurelevel.data.UserDataRepository;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import io.github.miniplaceholders.api.Expansion;
@@ -11,6 +11,8 @@ import me.lucko.helper.terminable.Terminable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -18,12 +20,13 @@ import java.math.RoundingMode;
 @Singleton
 public class MiniPlaceholderExpansion implements Terminable {
     private static final Tag EMPTY_TAG = Tag.selfClosingInserting(Component.empty());
-    private final PlayerDataManager playerDataManager;
-    private Expansion expansion;
+
+    @NonNull private final UserDataRepository userDataRepository;
+    @MonotonicNonNull private Expansion expansion;
 
     @Inject
-    public MiniPlaceholderExpansion(final PlayerDataManager playerDataManager) {
-        this.playerDataManager = playerDataManager;
+    public MiniPlaceholderExpansion(@NonNull final UserDataRepository userDataRepository) {
+        this.userDataRepository = userDataRepository;
     }
 
     public MiniPlaceholderExpansion register() {
@@ -32,16 +35,16 @@ public class MiniPlaceholderExpansion implements Terminable {
 
                 // return current primary level
                 .audiencePlaceholder("level", (audience, queue, ctx) -> {
-                    PlayerData data = playerDataManager.load((Player) audience);
-                    if (!data.complete()) return EMPTY_TAG;
+                    UserData data = userDataRepository.getCached(((Player) audience).getUniqueId());
+                    if (data == null) return EMPTY_TAG;
                     String primaryLevel = String.valueOf(data.getLevel(LevelCategory.PRIMARY).getLevel());
                     return Tag.preProcessParsed(primaryLevel);
                 })
 
                 // return progress to next level in percent (1-99)
                 .audiencePlaceholder("level_progress", (audience, queue, ctx) -> {
-                    PlayerData data = playerDataManager.load((Player) audience);
-                    if (!data.complete()) return EMPTY_TAG;
+                    UserData data = userDataRepository.getCached(((Player) audience).getUniqueId());
+                    if (data == null) return EMPTY_TAG;
                     Level primaryLevel = data.getLevel(LevelCategory.PRIMARY);
                     int currExp = primaryLevel.getExperience();
                     double currLevel = primaryLevel.calculateTotalLevel(currExp);
@@ -54,16 +57,16 @@ public class MiniPlaceholderExpansion implements Terminable {
 
                 // return total experience
                 .audiencePlaceholder("experience", (audience, queue, ctx) -> {
-                    PlayerData data = playerDataManager.load((Player) audience);
-                    if (!data.complete()) return EMPTY_TAG;
+                    UserData data = userDataRepository.getCached(((Player) audience).getUniqueId());
+                    if (data == null) return EMPTY_TAG;
                     String primaryLevel = String.valueOf(data.getLevel(LevelCategory.PRIMARY).getExperience());
                     return Tag.preProcessParsed(primaryLevel);
                 })
 
                 // return experience gained for current progress
                 .audiencePlaceholder("experience_progress", (audience, queue, ctx) -> {
-                    PlayerData data = playerDataManager.load((Player) audience);
-                    if (!data.complete()) return EMPTY_TAG;
+                    UserData data = userDataRepository.getCached(((Player) audience).getUniqueId());
+                    if (data == null) return EMPTY_TAG;
                     Level primaryLevel = data.getLevel(LevelCategory.PRIMARY);
                     int level = primaryLevel.getLevel();
                     int currExp = primaryLevel.getExperience();
@@ -74,8 +77,8 @@ public class MiniPlaceholderExpansion implements Terminable {
 
                 // return experience needed to get to next level from current level
                 .audiencePlaceholder("experience_progress_max", (audience, queue, ctx) -> {
-                    PlayerData data = playerDataManager.load((Player) audience);
-                    if (!data.complete()) return EMPTY_TAG;
+                    UserData data = userDataRepository.getCached(((Player) audience).getUniqueId());
+                    if (data == null) return EMPTY_TAG;
                     Level primaryLevel = data.getLevel(LevelCategory.PRIMARY);
                     int level = primaryLevel.getLevel();
                     int expUntilNextLevel = primaryLevel.calculateNeededExperience(level + 1);
