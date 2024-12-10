@@ -60,7 +60,7 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
         virtualExecutor = Executors.newCachedThreadPool(
                 new ThreadFactoryBuilder()
                         .setNameFormat("adventurelevel-virtual-%d")
-                        .setThreadFactory(Thread::startVirtualThread)
+                        .setThreadFactory(Thread.ofVirtual().factory())
                         .build()
         );
 
