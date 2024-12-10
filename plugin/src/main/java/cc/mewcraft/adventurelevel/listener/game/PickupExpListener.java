@@ -33,26 +33,25 @@ public class PickupExpListener implements Listener {
 
     @EventHandler(priority = HIGH, ignoreCancelled = true)
     public void onPickupExp(PlayerPickupExperienceEvent event) {
-        // 这里直接调用了 loadSync 是因为插件重载会让缓存失效.
-        // 使用 loadSync 可以在缓存失效时也能重新加载得到数据 (通过数据库).
-        // 除了插件重载的情况下, loadSync 都会直接返回缓存的数据, 不会走数据库.
-        SimpleUserData data = userDataManager.loadSync(event.getPlayer());
+        SimpleUserData cachedData = userDataManager.getCached0(event.getPlayer());
+        if (cachedData == null || !cachedData.isPopulated()) {
+            // Load data asynchronously if not cached
+            userDataManager.loadAsync0(event.getPlayer());
 
-        if (!data.isPopulated()) {
-            // Cancel event if data is not completed.
+            // Cancel event if data is not ready yet.
             // This avoids potential experience loss.
-            logger.warn("[{}] Player data is not populated, canceling PlayerPickupExperienceEvent", event.getPlayer().getName());
+            logger.warn("[{}] User data is not cached, canceling PlayerPickupExperienceEvent", event.getPlayer().getName());
             event.setCancelled(true);
             return;
         }
 
         // Handle primary level
-        data.getLevel(LevelCategory.PRIMARY).handleEvent(event);
+        cachedData.getLevel(LevelCategory.PRIMARY).handleEvent(event);
 
         // Handle other levels
         LevelCategory levelCategory = LevelCategoryUtils.get(event.getExperienceOrb().getSpawnReason());
         if (levelCategory != null) {
-            data.getLevel(levelCategory).handleEvent(event);
+            cachedData.getLevel(levelCategory).handleEvent(event);
         }
     }
 }
