@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public final class LevelFactory {
     public static @NonNull Level newLevel(@NonNull LevelCategory category) {
-        AdventureLevelPlugin plugin = AdventureLevelPlugin.getInstance();
+        AdventureLevelPlugin plugin = AdventureLevelPlugin.instance();
         ConfigurationSection config;
         return switch (category) {
 

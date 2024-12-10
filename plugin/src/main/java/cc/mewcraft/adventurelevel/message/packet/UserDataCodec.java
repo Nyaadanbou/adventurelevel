@@ -9,9 +9,9 @@ import com.google.common.io.ByteStreams;
 
 import java.util.UUID;
 
-public final class PlayerDataCodec implements Codec<PlayerDataPacket> {
+public final class UserDataCodec implements Codec<UserDataPacket> {
 
-    @Override public byte[] encode(final PlayerDataPacket message) throws EncodingException {
+    @Override public byte[] encode(final UserDataPacket message) throws EncodingException {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
 
         // write uuid
@@ -39,10 +39,10 @@ public final class PlayerDataCodec implements Codec<PlayerDataPacket> {
         return out.toByteArray();
     }
 
-    @Override public PlayerDataPacket decode(final byte[] buf) throws EncodingException {
+    @Override public UserDataPacket decode(final byte[] buf) throws EncodingException {
         ByteArrayDataInput in = ByteStreams.newDataInput(buf);
 
-        return new PlayerDataPacket(
+        return new UserDataPacket(
                 new UUID(in.readLong(), in.readLong()),
                 in.readUTF(),
                 in.readLong(),

@@ -8,102 +8,130 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import java.util.Map;
 
 /**
- * The number of levels is just a final result, which is derived from the backed experience value.
- * <p>
- * Implementation Notes: only experience value should be stored as a value source, the number of levels should be
- * derived from the {@link #calculateTotalLevel(int)}. Implementation may cache the number of levels if the calculation
- * is expensive.
+ * 等级的数量只是一个计算的结果, 它是从经验值 {@link #calculateTotalLevel(int)} 计算而来的.
  */
 public interface Level extends Examinable {
+
+    /**
+     * 处理玩家捡起经验球的事件.
+     *
+     * @param event 玩家捡起经验球的事件
+     */
     void handleEvent(PlayerPickupExperienceEvent event);
 
     /**
-     * @param level a specific level
-     * @return how much experience value has been collected to reach the given level
+     * 计算达到给定等级所需的经验值.
+     *
+     * @param level 指定的等级
+     * @return 达到给定等级所需的经验值
      */
     int calculateTotalExperience(int level);
 
     /**
-     * @param currentLevel the current level
-     * @return how many experience value needed to get to the next level from the given current level
+     * 计算从当前等级到下一级所需的经验值.
+     *
+     * @param currentLevel 当前等级
+     * @return 从当前等级到下一级所需的经验值
      */
     int calculateNeededExperience(int currentLevel);
 
     /**
-     * Note: it's an inverse of {@link #calculateTotalExperience(int)}.
+     * 计算给定的经验值 {@code totalExp} 对应的等级数量.
+     * <p>
+     * 返回的等级数量是一个 {@code double}, 小数部分是到下一级的进度. 其中 {@code 0} 表示零进度, {@code 1} 表示满进度.
+     * <p>
+     * 注意: 这是 {@link #calculateTotalExperience(int)} 的逆运算.
      *
-     * @param totalExp the total experience value
-     * @return the number of levels derived from the given total experience value. The returned number of levels is a
-     * double and the decimal part is essentially the progress to the next level, with <b>0</b> indicating zero progress
-     * and <b>1</b> indicating full progress
+     * @param totalExp 总经验值
+     * @return 给定的经验值对应的等级数量
      */
     double calculateTotalLevel(int totalExp);
 
     /**
-     * @return the current experience value
+     * 返回当前经验值.
+     *
+     * @return 当前的经验值
      */
     int getExperience();
 
     /**
-     * @param value the new experience value
-     * @return the old experience value
+     * 设置经验值.
+     *
+     * @param value 新的经验值
+     * @return 旧的经验值
      */
     int setExperience(int value);
 
     /**
-     * @param value the added experience value
-     * @return the old experience value
+     * 增加经验值.
+     *
+     * @param value 增加的经验值
+     * @return 旧的经验值
      */
     int addExperience(int value);
 
     /**
-     * @return the modifier applied when some experience value is obtained
+     * 获取指定类型的经验修饰符.
+     *
+     * @return 获得经验值时应用的修饰符
      */
     @NonNull Map<String, ExperienceModifier> getExperienceModifiers(ExperienceModifier.Type type);
 
     /**
-     * @param key      the key of the experience modifier
-     * @param modifier the experience modifier applied when some experience value is obtained
+     * 添加指定的经验修饰符.
+     *
+     * @param key 修饰符的键
+     * @param modifier 获得经验值时应用的修饰符
      */
     void addExperienceModifier(String key, ExperienceModifier modifier, ExperienceModifier.Type type);
 
     /**
-     * @param key the key of which the experience modifier should be removed
+     * 移除指定的经验修饰符.
+     *
+     * @param key 要移除的修饰符的键
      */
     void removeExperienceModifier(String key, ExperienceModifier.Type type);
 
     /**
-     * Clear all experience modifiers.
+     * 清除所有经验修饰符.
      */
     void clearExperienceModifiers();
 
     /**
-     * @return the current number of levels
+     * 返回等级数量.
+     *
+     * @return 当前的等级数量
      */
     int getLevel();
 
     /**
-     * @param level the new number of levels
-     * @return the old number of levels
+     * 设置等级数量.
+     *
+     * @param level 新的等级数量
+     * @return 旧的等级数量
      */
     int setLevel(int level);
 
     /**
-     * @param level the number of levels to be added
-     * @return the old number of levels
+     * 增加等级数量.
+     *
+     * @param level 要增加的等级数量
+     * @return 旧的等级数量
      */
     int addLevel(int level);
 
     /**
-     * @return the max number of levels
+     * 返回最大等级数量.
+     *
+     * @return 最大等级数量
      */
     int getMaxLevel();
 
     /**
-     * Sets the experience value of this level and returns itself.
+     * 设置经验值.
      *
-     * @param value the new experience value
-     * @return this instance
+     * @param value 新的经验值
+     * @return 此实例
      */
     @SuppressWarnings("unchecked")
     default <T extends Level> T withExperience(int value) {
@@ -112,10 +140,10 @@ public interface Level extends Examinable {
     }
 
     /**
-     * Sets the number of levels of this level and returns itself.
+     * 设置等级数量.
      *
-     * @param level the new number of levels
-     * @return this instance
+     * @param level 新的等级数量
+     * @return 此实例
      */
     @SuppressWarnings("unchecked")
     default <T extends Level> T withLevel(int level) {

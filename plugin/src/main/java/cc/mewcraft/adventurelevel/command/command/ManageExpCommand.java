@@ -2,8 +2,8 @@ package cc.mewcraft.adventurelevel.command.command;
 
 import cc.mewcraft.adventurelevel.command.AbstractCommand;
 import cc.mewcraft.adventurelevel.command.CommandManager;
-import cc.mewcraft.adventurelevel.command.parser.PlayerDataParser;
-import cc.mewcraft.adventurelevel.data.PlayerData;
+import cc.mewcraft.adventurelevel.command.parser.UserDataParser;
+import cc.mewcraft.adventurelevel.data.SimpleUserData;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
@@ -27,11 +27,10 @@ public class ManageExpCommand extends AbstractCommand {
         super(plugin, manager);
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override public void register() {
         Command<CommandSender> setExpCommand = manager.get().commandBuilder("adventurelevel")
                 .literal("set")
-                .required("userdata", PlayerDataParser.playerDataParser())
+                .required("userdata", UserDataParser.userDataParser())
                 .required("category", EnumParser.enumComponent(LevelOption.class))
                 .required("amount", IntegerParser.integerParser(0))
                 .flag(CommandFlag.builder("level"))
@@ -39,30 +38,30 @@ public class ManageExpCommand extends AbstractCommand {
                 .handler(context -> {
                     CommandSender sender = context.sender();
 
-                    PlayerData userdata = context.get("userdata");
+                    SimpleUserData userdata = context.get("userdata");
                     LevelOption category = context.get("category");
                     int amount = context.get("amount");
 
                     boolean useLevel = context.flags().isPresent("level");
                     TagResolver[] resolvers = {
-                            Placeholder.unparsed("player", PlayerUtils.getNameFromUUID(userdata.getUuid())),
+                            Placeholder.unparsed("player", PlayerUtils.getName(userdata.getUuid())),
                             Placeholder.unparsed("category", category.name()),
                             Placeholder.unparsed("amount", String.valueOf(amount))
                     };
 
                     if (useLevel) {
                         category.mapping.apply(userdata).setLevel(amount);
-                        plugin.translations().of("msg_player_level_is_set").resolver(resolvers).send(sender);
+                        plugin.getTranslations().of("msg_player_level_is_set").resolver(resolvers).send(sender);
                     } else {
                         category.mapping.apply(userdata).setExperience(amount);
-                        plugin.translations().of("msg_player_xp_is_set").resolver(resolvers).send(sender);
+                        plugin.getTranslations().of("msg_player_xp_is_set").resolver(resolvers).send(sender);
                     }
                 })
                 .build();
 
         Command<CommandSender> addExpCommand = manager.get().commandBuilder("adventurelevel")
                 .literal("add")
-                .required("userdata", PlayerDataParser.playerDataParser())
+                .required("userdata", UserDataParser.userDataParser())
                 .required("category", EnumParser.enumParser(LevelOption.class))
                 .required("amount", IntegerParser.integerParser(0))
                 .flag(CommandFlag.builder("level"))
@@ -70,23 +69,23 @@ public class ManageExpCommand extends AbstractCommand {
                 .handler(context -> {
                     CommandSender sender = context.sender();
 
-                    PlayerData userdata = context.get("userdata");
+                    SimpleUserData userdata = context.get("userdata");
                     LevelOption category = context.get("category");
                     int amount = context.get("amount");
 
                     boolean useLevel = context.flags().isPresent("level");
                     TagResolver[] resolvers = {
-                            Placeholder.unparsed("player", PlayerUtils.getNameFromUUID(userdata.getUuid())),
+                            Placeholder.unparsed("player", PlayerUtils.getName(userdata.getUuid())),
                             Placeholder.unparsed("category", category.name()),
                             Placeholder.unparsed("amount", String.valueOf(amount))
                     };
 
                     if (useLevel) {
                         category.mapping.apply(userdata).addLevel(amount);
-                        plugin.translations().of("msg_player_level_is_added").resolver(resolvers).send(sender);
+                        plugin.getTranslations().of("msg_player_level_is_added").resolver(resolvers).send(sender);
                     } else {
                         category.mapping.apply(userdata).addExperience(amount);
-                        plugin.translations().of("msg_player_xp_is_added").resolver(resolvers).send(sender);
+                        plugin.getTranslations().of("msg_player_xp_is_added").resolver(resolvers).send(sender);
                     }
                 })
                 .build();
@@ -109,9 +108,9 @@ public class ManageExpCommand extends AbstractCommand {
         exp_bottle(playerData -> playerData.getLevel(LevelCategory.EXP_BOTTLE)),
         grindstone(playerData -> playerData.getLevel(LevelCategory.GRINDSTONE));
 
-        public final Function<PlayerData, Level> mapping;
+        public final Function<SimpleUserData, Level> mapping;
 
-        LevelOption(Function<PlayerData, Level> mapping) {
+        LevelOption(Function<SimpleUserData, Level> mapping) {
             this.mapping = mapping;
         }
     }

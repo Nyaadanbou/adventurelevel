@@ -4,14 +4,13 @@ import cc.mewcraft.adventurelevel.level.category.LevelCategory;
 import me.lucko.helper.messaging.codec.Message;
 import net.kyori.examination.Examinable;
 import net.kyori.examination.ExaminableProperty;
-import net.kyori.examination.string.StringExaminer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.UUID;
 import java.util.stream.Stream;
 
-@Message(codec = PlayerDataCodec.class) // use specific Codec instead of GsonCodec to encode/decode this class
-public record PlayerDataPacket(
+@Message(codec = UserDataCodec.class) // use specific Codec instead of GsonCodec to encode/decode this class
+public record UserDataPacket(
         UUID uuid,
         String server,
         long timestamp,
@@ -41,10 +40,6 @@ public record PlayerDataPacket(
         };
     }
 
-    public @NonNull String toSimpleString() {
-        return "PlayerDataPacket{uuid=" + uuid + ", server='" + server + "', timestamp=" + timestamp + ", primaryExp=" + primaryXp + "}";
-    }
-
     @Override public @NonNull Stream<? extends ExaminableProperty> examinableProperties() {
         return Stream.of(
                 ExaminableProperty.of("uuid", uuid),
@@ -64,6 +59,6 @@ public record PlayerDataPacket(
     }
 
     @Override public @NonNull String toString() {
-        return StringExaminer.simpleEscaping().examine(this);
+        return "UserDataPacket{uuid=" + uuid + ", server='" + server + "', timestamp=" + timestamp + ", primaryExp=" + primaryXp + "}";
     }
 }

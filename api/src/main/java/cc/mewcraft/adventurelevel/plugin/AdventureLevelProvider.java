@@ -18,7 +18,7 @@ public final class AdventureLevelProvider {
     public static @NonNull AdventureLevel get() {
         AdventureLevel instance = AdventureLevelProvider.instance;
         if (instance == null) {
-            throw new IllegalStateException("Instance is not loaded yet.");
+            throw new IllegalStateException("AdventureLevel instance is not initialized yet");
         }
         return instance;
     }
@@ -34,6 +34,6 @@ public final class AdventureLevelProvider {
     }
 
     private AdventureLevelProvider() {
-        throw new UnsupportedOperationException("This class cannot be instantiated.");
+        throw new UnsupportedOperationException("this class cannot be instantiated");
     }
 }

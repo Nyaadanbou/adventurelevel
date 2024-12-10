@@ -86,11 +86,11 @@ public class AdventureLevelExpChangeEvent extends PlayerEvent implements Cancell
      */
     public enum Action {
         /**
-         * 在当前经验值的基础之上, 增加或减少定量的经验值.
+         * 对当前的经验值增加或减少定量的经验值.
          */
         OFFSET,
         /**
-         * 无视已有的经验值, 直接将其覆盖为指定的数值.
+         * 把当前的经验值直接覆盖为指定的经验值.
          */
         OVERWRITE,
     }

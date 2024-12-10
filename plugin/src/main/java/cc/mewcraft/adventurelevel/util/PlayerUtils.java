@@ -9,20 +9,20 @@ import java.util.UUID;
 
 public final class PlayerUtils {
 
-    public static @NonNull String getReadableString(UUID uuid) {
-        return getNameFromUUID(uuid) + "{uuid=" + uuid + "}";
+    public static @NonNull String getPrettyString(UUID uuid) {
+        return getName(uuid) + "{uuid=" + uuid + "}";
     }
 
-    public static @NonNull String getNameFromUUID(UUID uuid) {
+    public static @NonNull String getName(UUID uuid) {
         return Players.getOffline(uuid).map(OfflinePlayer::getName).orElse("null");
     }
 
-    public static @Nullable String getNameFromUUIDNullable(UUID uuid) {
+    public static @Nullable String getNameOrNull(UUID uuid) {
         return Players.getOffline(uuid).map(OfflinePlayer::getName).orElse(null);
     }
 
     private PlayerUtils() {
-        throw new UnsupportedOperationException("This class cannot be instantiated.");
+        throw new UnsupportedOperationException("this class cannot be instantiated.");
     }
 
 }

@@ -1,7 +1,6 @@
 package cc.mewcraft.adventurelevel.file;
 
-import cc.mewcraft.adventurelevel.data.PlayerData;
-import cc.mewcraft.adventurelevel.data.RealPlayerData;
+import cc.mewcraft.adventurelevel.data.SimpleUserData;
 import cc.mewcraft.adventurelevel.level.LevelFactory;
 import cc.mewcraft.adventurelevel.level.category.Level;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
@@ -12,6 +11,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 
 import java.sql.Connection;
@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.util.Objects.requireNonNull;
 
 @Singleton
-public class SQLDataStorage extends AbstractDataStorage {
+public class SQLUserDataStorage extends AbstractUserDataStorage {
 
     private static final String DATA_POOL_NAME = "AdventureLevelHikariPool";
 
@@ -56,12 +56,14 @@ public class SQLDataStorage extends AbstractDataStorage {
     private final Logger logger;
 
     @Inject
-    public SQLDataStorage(
-            final AdventureLevelPlugin plugin,
+    public SQLUserDataStorage(
             final Logger logger
     ) {
-        super(plugin);
+        super();
+
         this.logger = logger;
+
+        final AdventureLevelPlugin plugin = AdventureLevelPlugin.instance();
 
         this.host = requireNonNull(plugin.getConfig().getString("database.credentials.host"));
         this.port = requireNonNull(plugin.getConfig().getString("database.credentials.port"));
@@ -155,7 +157,7 @@ public class SQLDataStorage extends AbstractDataStorage {
         }
     }
 
-    @Override public @NonNull PlayerData create(final UUID uuid) {
+    @Override public @NonNull SimpleUserData create(final @NonNull UUID uuid) {
         try (Connection conn = connectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(insertUserdataQuery)
         ) {
@@ -173,10 +175,10 @@ public class SQLDataStorage extends AbstractDataStorage {
                 put(LevelCategory.GRINDSTONE, LevelFactory.newLevel(LevelCategory.GRINDSTONE));
             }};
 
-            PlayerData playerData = new RealPlayerData(plugin, uuid, levels);
+            SimpleUserData data = new SimpleUserData(uuid, levels);
 
             stmt.setString(1, uuid.toString());
-            stmt.setString(2, PlayerUtils.getNameFromUUID(uuid).toLowerCase());
+            stmt.setString(2, PlayerUtils.getName(uuid).toLowerCase());
             stmt.setInt(3, 0);
             stmt.setInt(4, 0);
             stmt.setInt(5, 0);
@@ -189,17 +191,14 @@ public class SQLDataStorage extends AbstractDataStorage {
             stmt.setInt(12, 0);
             stmt.execute();
 
-            logger.info("Created new userdata in database: {}", playerData.toSimpleString());
-            return playerData;
+            logger.info("[{}] Created new userdata in SQL data storage: {}", PlayerUtils.getName(uuid), data);
+            return data;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("failed to create new userdata in SQL data storage for player " + PlayerUtils.getName(uuid), e);
         }
-
-        logger.warn("Failed to create new userdata in database for {}", PlayerUtils.getReadableString(uuid));
-        return PlayerData.DUMMY;
     }
 
-    @Override public @NonNull PlayerData load(final UUID uuid) {
+    @Override public @Nullable SimpleUserData load(final @NonNull UUID uuid) {
         try (Connection conn = connectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(selectUserdataQuery)
         ) {
@@ -233,43 +232,44 @@ public class SQLDataStorage extends AbstractDataStorage {
                         put(LevelCategory.GRINDSTONE, LevelFactory.newLevel(LevelCategory.GRINDSTONE).withExperience(grindstoneXp));
                     }};
 
-                    RealPlayerData playerData = new RealPlayerData(plugin, uuid, levels);
-                    logger.info("Loaded userdata from database: {}", playerData.toSimpleString());
-                    return playerData;
+                    SimpleUserData data = new SimpleUserData(uuid, levels);
+                    data.setPopulated(true);
+                    logger.info("[{}] Loaded userdata from SQL data storage: {}", PlayerUtils.getName(uuid), data);
+                    return data;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        logger.warn("Userdata not found in database for {}", PlayerUtils.getReadableString(uuid));
-        return PlayerData.DUMMY;
+        logger.warn("[{}] Userdata not found in SQL data storage", PlayerUtils.getName(uuid));
+        return null;
     }
 
-    @Override public void save(final PlayerData playerData) {
-        if (playerData.equals(PlayerData.DUMMY) || !playerData.complete()) {
-            logger.info("Skipped saving userdata to database for {}", playerData.toSimpleString());
+    @Override public void save(final @NonNull SimpleUserData data) {
+        if (!data.isPopulated()) {
+            logger.info("[{}] Skipped saving userdata to SQL data storage", PlayerUtils.getName(data.getUuid()));
             return;
         }
 
         try (Connection conn = connectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(insertUserdataQuery)
         ) {
-            stmt.setString(1, playerData.getUuid().toString());
-            stmt.setString(2, PlayerUtils.getNameFromUUID(playerData.getUuid()).toLowerCase());
-            stmt.setInt(3, playerData.getLevel(LevelCategory.PRIMARY).getExperience());
-            stmt.setInt(4, playerData.getLevel(LevelCategory.PLAYER_DEATH).getExperience());
-            stmt.setInt(5, playerData.getLevel(LevelCategory.ENTITY_DEATH).getExperience());
-            stmt.setInt(6, playerData.getLevel(LevelCategory.FURNACE).getExperience());
-            stmt.setInt(7, playerData.getLevel(LevelCategory.BREED).getExperience());
-            stmt.setInt(8, playerData.getLevel(LevelCategory.VILLAGER_TRADE).getExperience());
-            stmt.setInt(9, playerData.getLevel(LevelCategory.FISHING).getExperience());
-            stmt.setInt(10, playerData.getLevel(LevelCategory.BLOCK_BREAK).getExperience());
-            stmt.setInt(11, playerData.getLevel(LevelCategory.EXP_BOTTLE).getExperience());
-            stmt.setInt(12, playerData.getLevel(LevelCategory.GRINDSTONE).getExperience());
+            stmt.setString(1, data.getUuid().toString());
+            stmt.setString(2, PlayerUtils.getName(data.getUuid()).toLowerCase());
+            stmt.setInt(3, data.getLevel(LevelCategory.PRIMARY).getExperience());
+            stmt.setInt(4, data.getLevel(LevelCategory.PLAYER_DEATH).getExperience());
+            stmt.setInt(5, data.getLevel(LevelCategory.ENTITY_DEATH).getExperience());
+            stmt.setInt(6, data.getLevel(LevelCategory.FURNACE).getExperience());
+            stmt.setInt(7, data.getLevel(LevelCategory.BREED).getExperience());
+            stmt.setInt(8, data.getLevel(LevelCategory.VILLAGER_TRADE).getExperience());
+            stmt.setInt(9, data.getLevel(LevelCategory.FISHING).getExperience());
+            stmt.setInt(10, data.getLevel(LevelCategory.BLOCK_BREAK).getExperience());
+            stmt.setInt(11, data.getLevel(LevelCategory.EXP_BOTTLE).getExperience());
+            stmt.setInt(12, data.getLevel(LevelCategory.GRINDSTONE).getExperience());
             stmt.execute();
 
-            logger.info("Saved userdata to database: {}", playerData.toSimpleString());
+            logger.info("[{}] Saved userdata to SQL data storage: {}", PlayerUtils.getName(data.getUuid()), data);
         } catch (SQLException e) {
             e.printStackTrace();
         }

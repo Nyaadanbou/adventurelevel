@@ -1,11 +1,10 @@
 package cc.mewcraft.adventurelevel.message;
 
-import cc.mewcraft.adventurelevel.data.PlayerData;
-import cc.mewcraft.adventurelevel.data.PlayerDataManager;
-import cc.mewcraft.adventurelevel.data.PlayerDataUpdater;
+import cc.mewcraft.adventurelevel.data.SimpleUserData;
 import cc.mewcraft.adventurelevel.level.category.LevelCategory;
-import cc.mewcraft.adventurelevel.message.packet.PlayerDataPacket;
+import cc.mewcraft.adventurelevel.message.packet.UserDataPacket;
 import cc.mewcraft.adventurelevel.plugin.AdventureLevelPlugin;
+import cc.mewcraft.adventurelevel.util.PlayerUtils;
 import cc.mewcraft.nettowaku.ServerInfo;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -27,47 +26,45 @@ import java.util.UUID;
 /**
  * This class provides methods to sync data between servers.
  * <p>
- * Why we have this class? Because SQL database is too slow to save/load data when players switch servers.
+ * Why we have this class?
+ * Because SQL database is too slow to save/load data when players switch servers.
  */
 @Singleton
-public class PlayerDataMessenger implements Terminable {
-    private static final String SYNC_CHANNEL = "advtrlvl-sync";
+public class UserDataMessenger implements Terminable {
+    private static final String SYNC_CHANNEL_NAME = "adventurelevel-messenger";
 
     private final Logger logger;
-    private final PlayerDataManager playerDataManager;
 
     /**
      * A channel to send messages.
      */
-    private final Channel<PlayerDataPacket> channel;
+    private final Channel<UserDataPacket> channel;
+
     /**
      * An agent created from the channel, used to register listeners.
      */
-    private final ChannelAgent<PlayerDataPacket> agent;
+    private final ChannelAgent<UserDataPacket> channelAgent;
+
     /**
      * A cache that stores the messages received from other servers.
      * <p>
      * The entries should be expired in a very short period of time.
      */
-    private final Cache<UUID, PlayerDataPacket> messageStore;
+    private final Cache<UUID, UserDataPacket> messageStore;
 
     @Inject
-    public PlayerDataMessenger(
-            final AdventureLevelPlugin plugin,
-            final Logger logger,
-            final PlayerDataManager playerDataManager
-    ) {
+    public UserDataMessenger(final Logger logger) {
         this.logger = logger;
-        this.playerDataManager = playerDataManager;
 
-        long networkLatencyMilliseconds = Math.max(0, plugin.getConfig().getLong("synchronization.network_latency_milliseconds"));
-        this.messageStore = CacheBuilder.newBuilder().expireAfterWrite(Duration.of(networkLatencyMilliseconds * 2L, ChronoUnit.MILLIS)).build();
+        final AdventureLevelPlugin plugin = AdventureLevelPlugin.instance();
+        final long messageExpireMilliseconds = Math.max(0, plugin.getConfig().getLong("synchronization.message_expire_milliseconds"));
+        this.messageStore = CacheBuilder.newBuilder().expireAfterWrite(Duration.of(messageExpireMilliseconds, ChronoUnit.MILLIS)).build();
 
         // Get and define the channel.
-        this.channel = plugin.getService(Messenger.class).getChannel(SYNC_CHANNEL, PlayerDataPacket.class);
+        this.channel = plugin.getService(Messenger.class).getChannel(SYNC_CHANNEL_NAME, UserDataPacket.class);
 
         // Create an agent for the channel.
-        this.agent = this.channel.newAgent();
+        this.channelAgent = this.channel.newAgent();
     }
 
     public void registerListeners() {
@@ -77,34 +74,21 @@ public class PlayerDataMessenger implements Terminable {
             }
 
             UUID uuid = message.uuid();
-
-            // Save data in the message store
             messageStore.put(uuid, message);
-
-            if (playerDataManager.asMap().containsKey(uuid)) {
-                PlayerData data = playerDataManager.asMap().get(uuid);
-                if (data.complete()) {
-                    // Here we only need to update *complete* entry,
-                    // while *incomplete* means that the entry is newly created (or re-added),
-                    // in which case the CacheLoader will handle the data loading.
-
-                    PlayerDataUpdater.update(data, message);
-                    logger.info("Update userdata in cache: {}", message.toSimpleString());
-                }
-            }
+            logger.info("[{}] Stored userdata from channel: {}", PlayerUtils.getName(uuid), message);
         });
     }
 
     /**
      * This method should be called upon player quitting the server.
      * <p>
-     * <b>Caveat:</b> The data should be published only if {@link PlayerData#complete()} returns true.
-     * Callers should check {@link PlayerData#complete()} before calling this method.
+     * <b>Caveat:</b> The data should be published only if {@link SimpleUserData#isPopulated()} returns true.
+     * Callers should check {@link SimpleUserData#isPopulated()} before calling this method.
      *
      * @param data the player data to be sent to the channel
      */
-    public void publish(@NonNull PlayerData data) {
-        channel.sendMessage(new PlayerDataPacket(
+    public void publish(@NonNull SimpleUserData data) {
+        channel.sendMessage(new UserDataPacket(
                 data.getUuid(),
                 ServerInfo.SERVER_ID.get(),
                 System.currentTimeMillis(),
@@ -119,26 +103,26 @@ public class PlayerDataMessenger implements Terminable {
                 data.getLevel(LevelCategory.PLAYER_DEATH).getExperience(),
                 data.getLevel(LevelCategory.VILLAGER_TRADE).getExperience()
         )).thenAcceptAsync(n ->
-                logger.info("Published userdata to channel: {}", data.toSimpleString())
+                logger.info("[{}] Published userdata to channel: {}", PlayerUtils.getName(data.getUuid()), data)
         );
     }
 
     /**
      * Gets the cached player data in the message store.
      *
-     * @return the PlayerData cached in the message store, or null if it's not cached
+     * @return the {@link UserDataPacket} cached in the message store, or null if it's not cached
      */
-    public @Nullable PlayerDataPacket get(UUID uuid) {
-        PlayerDataPacket packet = messageStore.getIfPresent(uuid);
+    public @Nullable UserDataPacket get(UUID uuid) {
+        UserDataPacket packet = messageStore.getIfPresent(uuid);
         if (packet != null) {
-            logger.info("Access userdata from messenger: {}", packet.toSimpleString());
+            logger.info("[{}] Access userdata from messenger: {}", PlayerUtils.getName(uuid), packet);
         }
         return packet;
     }
 
     @Override public void close() {
         // clean up agent
-        agent.close();
+        channelAgent.close();
         // clean up cache
         messageStore.cleanUp();
     }
