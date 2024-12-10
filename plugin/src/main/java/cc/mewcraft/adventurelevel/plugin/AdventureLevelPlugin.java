@@ -34,7 +34,7 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
 
     private Injector injector;
     private ComponentLogger logger;
-    private ExecutorService virtualExecutor;
+    private ExecutorService executor;
 
     public static @NonNull AdventureLevelPlugin instance() {
         return INSTANCE;
@@ -57,9 +57,9 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
             }
         });
 
-        virtualExecutor = Executors.newCachedThreadPool(
+        executor = Executors.newThreadPerTaskExecutor(
                 new ThreadFactoryBuilder()
-                        .setNameFormat("adventurelevel-virtual-%d")
+                        .setNameFormat("adventurelevel-%d")
                         .setThreadFactory(Thread.ofVirtual().factory())
                         .build()
         );
@@ -119,8 +119,8 @@ public class AdventureLevelPlugin extends ExtendedJavaPlugin implements Adventur
         return injector.getInstance(UserDataMessenger.class);
     }
 
-    public @NonNull ExecutorService getVirtualExecutor() {
-        return virtualExecutor;
+    public @NonNull ExecutorService getExecutor() {
+        return executor;
     }
 
     /* implements AdventureLevel */

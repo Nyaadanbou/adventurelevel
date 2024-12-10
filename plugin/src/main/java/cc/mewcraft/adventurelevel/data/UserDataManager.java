@@ -88,7 +88,7 @@ public class UserDataManager implements Terminable, UserDataRepository {
         return CompletableFuture.supplyAsync(() -> {
             storage.save(userData);
             return userData;
-        });
+        }, AdventureLevelPlugin.instance().getExecutor());
     }
 
     /**
@@ -163,7 +163,7 @@ public class UserDataManager implements Terminable, UserDataRepository {
      * @see #loadAsync(UUID)
      */
     public @NonNull CompletableFuture<SimpleUserData> loadAsync0(@NonNull final UUID uuid) {
-        return CompletableFuture.supplyAsync(() -> loadSync(uuid), AdventureLevelPlugin.instance().getVirtualExecutor());
+        return CompletableFuture.supplyAsync(() -> loadSync(uuid), AdventureLevelPlugin.instance().getExecutor());
     }
 
     public @NonNull CompletableFuture<SimpleUserData> loadAsync0(final @NonNull OfflinePlayer player) {
